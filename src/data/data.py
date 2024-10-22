@@ -5,7 +5,6 @@ import cv2
 import matplotlib.pyplot as plt
 import tensorflow as tf
 
-# data_dir = "/data/raw/data"
 data_dir = r"D:\matna\Documents\Escritorio\Facultad\Proyecto\data\raw\data"
 categorias = os.listdir(data_dir)
 
@@ -68,23 +67,9 @@ for idx, img in enumerate(batch[0][:4]):
 
     ax[idx].title.set_text(f"Class: {label_class}")
 
-
-# Guardar ----------------------------------------------------------------------
-# Ruta del directorio donde se guardarán las imágenes
-output_dir = r"D:\matna\Documents\Escritorio\Facultad\Proyecto\data\processed"
-import numpy as np
-from PIL import Image  # Asegúrate de importar correctamente PIL
-
-# Guardar cada imagen en su carpeta correspondiente
-for idx, (image, label) in enumerate(data):
-    # Convertir el tensor de la imagen a un formato compatible con PIL
-    image = Image.fromarray(image.numpy().astype(np.uint8))
-
-    # Crear la carpeta para la clase si no existe
-    class_dir = os.path.join(output_dir, f"class_{label.numpy()}")
-    os.makedirs(class_dir, exist_ok=True)
-
-    # Guardar la imagen
-    image.save(os.path.join(class_dir, f"image_{idx}.png"))
-
-print(f"Imágenes guardadas en: {output_dir}")
+# Guardar---------------------------------------------------------
+# Guardar el tensor usando TensorFlow
+save_path = os.path.join("..", "..", "data", "processed")  # Ruta relativa
+tf.data.experimental.save(data, save_path)
+print(f"Tensores guardados en {save_path}")
+# print(os.getcwd())  # Te muestra el directorio actual
