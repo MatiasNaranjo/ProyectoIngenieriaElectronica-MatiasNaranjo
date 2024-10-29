@@ -11,7 +11,7 @@ load_path = os.path.join("..", "..", "data", "processed")  # Ruta relativa
 # print(os.getcwd())  # Te muestra el directorio actual
 
 # Cargar el dataset guardado
-data = tf.data.experimental.load(load_path)
+data = tf.data.Dataset.load(load_path)
 print("Dataset cargado con éxito.")
 
 # Opcional: Verifica algunos datos del dataset
@@ -94,7 +94,7 @@ data_augmentation = keras.Sequential(
 # Definir el modelo
 model = Sequential(
     [
-        data_augmentation,
+        #data_augmentation,
         Conv2D(16, (3, 3), activation="relu", input_shape=(256, 256, 3)),
         MaxPooling2D(),
         Conv2D(32, (3, 3), activation="relu"),
@@ -154,7 +154,7 @@ model.save(save_path_tf)
 import pickle
 
 save_path_pkl = os.path.join(
-    "..", "..", "src", "inference", f"saved_history_{timestamp}.pkl"
+    "..", "..", "experiments", "experiment_2", f"saved_history"
 )
 os.makedirs(save_path_pkl, exist_ok=True)
 
