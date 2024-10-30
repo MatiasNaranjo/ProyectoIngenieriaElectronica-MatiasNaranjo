@@ -4,22 +4,29 @@ import subprocess
 import tensorflow as tf
 
 # Ejecutamos el script data.py
-subprocess.run(["python", "../src/data/data.py"])
+# subprocess.run(["python", "../src/data/data.py"])}
 
-# Definir la ruta desde la que cargar los datos
-load_path = os.path.join("..", "..", "data", "processed")  # Ruta relativa
-# print(os.getcwd())  # Te muestra el directorio actual
+# Directorio base
+base_save_path = os.path.join("..", "..", "data", "processed")
+
+# Directorio de cada conjunto
+train_save_path = os.path.join(base_save_path, "train")
+val_save_path = os.path.join(base_save_path, "val")
+test_save_path = os.path.join(base_save_path, "test")
 
 # Cargar el dataset guardado
-data = tf.data.Dataset.load(load_path)
+train = tf.data.Dataset.load(train_save_path)
+val = tf.data.Dataset.load(val_save_path)
+test = tf.data.Dataset.load(test_save_path)
+
 print("Dataset cargado con éxito.")
 
-# Opcional: Verifica algunos datos del dataset
-for images, labels in data.take(1):  # Toma un lote de imágenes y etiquetas
+# Verifico algunos datos del dataset
+for images, labels in train.take(1):  # Toma un lote de imágenes y etiquetas
     print(images.shape, labels.shape)  # Muestra las formas de los tensores cargados
 
 # Ejemplo: ver un batch de datos cargados
-data_iterator = data.as_numpy_iterator()
+data_iterator = train.as_numpy_iterator()
 batch = data_iterator.next()
 
 # Mostrar algunas imágenes y etiquetas del batch cargado
@@ -30,38 +37,14 @@ for idx, img in enumerate(batch[0][:4]):
     ax[idx].imshow(img)
     ax[idx].title.set_text(f"Class: {tf.argmax(batch[1][idx]).numpy()}")
 
-# Split Data
-total_size = len(data)
-
-train_size = int(total_size * 0.7)
-val_size = int(total_size * 0.2)
-test_size = total_size - train_size - val_size
-
-print("Los batches de entrenamiento son: " + str(train_size))
-print("Los batches de validación son: " + str(val_size))
-print("Los batches de prueba son: " + str(test_size))
-print("Los batches totales son: " + str(total_size))
-
-train = data.take(train_size)
-val = data.skip(train_size).take(val_size)
-test = data.skip(train_size + val_size).take(test_size)
-
-# Dividir los datos en conjuntos de entrenamiento, validación y prueba
-total_size = len(data)
-train_size = int(total_size * 0.7)
-val_size = int(total_size * 0.2)
-test_size = total_size - train_size - val_size
-
-train = data.take(train_size)
-val = data.skip(train_size).take(val_size)
-test = data.skip(train_size + val_size).take(test_size)
 
 # Cuento las categorias que tengo(diferentes productos)
-for _, labels in data.take(1):  # Toma un lote de etiquetas
+for _, labels in train.take(1):  # Toma un lote de etiquetas
     cant_categorias = labels.shape[
         -1
     ]  # Toma la dimensión de la última parte de la etiqueta
     break
+print("Las categorias son: " + str(cant_categorias))
 
 import numpy as np
 
@@ -94,12 +77,12 @@ data_augmentation = keras.Sequential(
 # Definir el modelo
 model = Sequential(
     [
-        #data_augmentation,
-        Conv2D(16, (3, 3), activation="relu", input_shape=(256, 256, 3)),
+        data_augmentation,
+        Conv2D(32, (3, 3), activation="relu", input_shape=(256, 256, 3)),
         MaxPooling2D(),
-        Conv2D(32, (3, 3), activation="relu"),
+        Conv2D(64, (3, 3), activation="relu"),
         MaxPooling2D(),
-        Conv2D(16, (3, 3), activation="relu"),
+        Conv2D(128, (3, 3), activation="relu"),
         MaxPooling2D(),
         Flatten(),
         Dense(256, activation="relu"),
@@ -154,7 +137,7 @@ model.save(save_path_tf)
 import pickle
 
 save_path_pkl = os.path.join(
-    "..", "..", "experiments", "experiment_2", f"saved_history"
+    "..", "..", "experiments", "experiment_3", f"saved_history"
 )
 os.makedirs(save_path_pkl, exist_ok=True)
 

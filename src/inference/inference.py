@@ -5,7 +5,7 @@ import pickle
 import matplotlib.pyplot as plt
 
 load_path = os.path.join(
-    "..", "..", "experiments", "experiment_2", "saved_history"
+    "..", "..", "experiments", "experiment_3", "saved_history"
 )  # Ruta relativa
 history_files = glob.glob(os.path.join(load_path, "history_*.pkl"))
 

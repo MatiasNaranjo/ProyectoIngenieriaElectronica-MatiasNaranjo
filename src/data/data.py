@@ -67,9 +67,40 @@ for idx, img in enumerate(batch[0][:4]):
 
     ax[idx].title.set_text(f"Class: {label_class}")
 
+# Split Data
+total_size = len(data)
+
+train_size = int(total_size * 0.7)
+val_size = int(total_size * 0.2)
+test_size = total_size - train_size - val_size
+
+print("Los batches de entrenamiento son: " + str(train_size))
+print("Los batches de validación son: " + str(val_size))
+print("Los batches de prueba son: " + str(test_size))
+print("Los batches totales son: " + str(total_size))
+
+train = data.take(train_size)
+val = data.skip(train_size).take(val_size)
+test = data.skip(train_size + val_size).take(test_size)
+
+
 # Guardar---------------------------------------------------------
-# Guardar el tensor usando TensorFlow
-save_path = os.path.join("..", "..", "data", "processed")  # Ruta relativa
-tf.data.experimental.save(data, save_path)
-print(f"Tensores guardados en {save_path}")
-# print(os.getcwd())  # Te muestra el directorio actual
+# Directorio base donde guardaremos los conjuntos
+base_save_path = os.path.join("..", "..", "data", "processed")
+
+# Guardar cada conjunto por separado
+train_save_path = os.path.join(base_save_path, "train")
+val_save_path = os.path.join(base_save_path, "val")
+test_save_path = os.path.join(base_save_path, "test")
+
+# Crear directorios si no existen
+os.makedirs(train_save_path, exist_ok=True)
+os.makedirs(val_save_path, exist_ok=True)
+os.makedirs(test_save_path, exist_ok=True)
+
+# Guardar los datasets
+tf.data.Dataset.save(train, train_save_path)
+tf.data.Dataset.save(val, val_save_path)
+tf.data.Dataset.save(test, test_save_path)
+
+print(f"Tensores guardados en {base_save_path}")
