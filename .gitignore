@@ -3,3 +3,4 @@
 *.pkl
 data/
 *.keras
+*.png
