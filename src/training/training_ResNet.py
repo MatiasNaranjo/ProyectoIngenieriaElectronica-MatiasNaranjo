@@ -3,9 +3,6 @@ import subprocess
 
 import tensorflow as tf
 
-# Ejecutamos el script data.py
-# subprocess.run(["python", "../src/data/data.py"])}
-
 # Directorio base
 base_save_path = os.path.join("..", "..", "data", "processed")
 
@@ -53,6 +50,7 @@ import tensorflow as tf
 from matplotlib import pyplot as plt
 from tensorflow import keras
 from tensorflow.keras import layers
+from tensorflow.keras.applications import ResNet50
 from tensorflow.keras.callbacks import TensorBoard
 from tensorflow.keras.layers import (
     BatchNormalization,
@@ -60,10 +58,12 @@ from tensorflow.keras.layers import (
     Dense,
     Dropout,
     Flatten,
+    Input,
     MaxPooling2D,
 )
 from tensorflow.keras.losses import CategoricalCrossentropy
-from tensorflow.keras.models import Sequential
+from tensorflow.keras.models import Model, Sequential
+
 
 # create augmentation sequentions
 data_augmentation = keras.Sequential(
@@ -75,39 +75,56 @@ data_augmentation = keras.Sequential(
 )
 
 # Definir el modelo
-model = Sequential(
+
+
+# Configuración de data augmentation
+data_augmentation = Sequential(
     [
-        data_augmentation,
-        Conv2D(32, (3, 3), activation="relu", input_shape=(256, 256, 3)),
-        MaxPooling2D(),
-        Conv2D(64, (3, 3), activation="relu"),
-        MaxPooling2D(),
-        Conv2D(128, (3, 3), activation="relu"),
-        MaxPooling2D(),
-        Flatten(),
-        Dense(256, activation="relu"),
-        Dense(cant_categorias, activation="softmax"),  # 13 clases
+        # Ejemplo de aumentación de datos; puedes agregar más según sea necesario.
+        tf.keras.layers.RandomFlip("horizontal"),
+        tf.keras.layers.RandomRotation(0.1),
+        tf.keras.layers.RandomZoom(0.1),
     ]
 )
 
-# Inicializar y compilar el modelo con CategoricalCrossentropy
-CC_loss = CategoricalCrossentropy()
-model.compile(optimizer="adam", loss=CC_loss, metrics=["accuracy"])
+# Cargar ResNet50 como base, sin las capas superiores
+base_model = ResNet50(weights="imagenet", include_top=False, input_shape=(256, 256, 3))
+
+# Congelar las capas de ResNet para mantener los pesos preentrenados
+for layer in base_model.layers:
+    layer.trainable = False
+
+# Definir el modelo en forma secuencial con capas adicionales
+model = Sequential(
+    [
+        data_augmentation,  # Aumentación de datos
+        base_model,  # Base preentrenada de ResNet
+        MaxPooling2D(),  # Capa de pooling adicional
+        Conv2D(128, (3, 3), activation="relu"),  # Capas adicionales de convolución
+        MaxPooling2D(),
+        Flatten(),
+        Dense(256, activation="relu"),
+        Dense(cant_categorias, activation="softmax"),  # Salida con tus clases
+    ]
+)
+
+# Compilar el modelo
+model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"])
 
 # Crear un callback para TensorBoard
 logdir = "logs"
 tensorboard_callback = TensorBoard(log_dir=logdir)
-
-# Calcular steps_per_epoch y validation_steps
-# steps_per_epoch = train_size // 16
-# validation_steps = val_size // 16
 
 # Entrenar el modelo
 history = model.fit(
     train, epochs=100, validation_data=val, callbacks=[tensorboard_callback]
 )
 
-# Evaluar el modelo en el conjunto de validación
+# Inicializar y compilar el modelo con CategoricalCrossentropy
+CC_loss = CategoricalCrossentropy()
+model.compile(optimizer="adam", loss=CC_loss, metrics=["accuracy"])
+
+
 val_loss, val_accuracy = model.evaluate(val)
 print()
 print(f"Validation loss: {val_loss}")
@@ -128,7 +145,7 @@ timestamp = datetime.datetime.now().strftime(
 )  # Obtener el timestamp actual
 # O guardar en formato SavedModel (formato por defecto de TensorFlow)
 save_path_tf = os.path.join(
-    "..", "..", "src", "models", f"saved_model_{timestamp}.keras"
+    "..", "..", "src", "models", f"saved_modelRest_{timestamp}.keras"
 )
 
 model.save(save_path_tf)
@@ -137,7 +154,7 @@ model.save(save_path_tf)
 import pickle
 
 save_path_pkl = os.path.join(
-    "..", "..", "experiments", "experiment_100iter", f"saved_history"
+    "..", "..", "experiments", "experiment_Rest", f"saved_history"
 )
 os.makedirs(save_path_pkl, exist_ok=True)
 

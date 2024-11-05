@@ -33,7 +33,7 @@ print(f"Modelo más reciente cargado: {latest_model_file}")
 y_true = []
 y_pred = []
 
-for images, labels in test:  # Utilizando test en lugar de imágenes individuales
+for images, labels in val:  # Utilizando test en lugar de imágenes individuales
     predictions = model.predict(images)
     y_true.extend(np.argmax(labels, axis=1))  # Etiquetas verdaderas
     y_pred.extend(np.argmax(predictions, axis=1))  # Predicciones
@@ -59,7 +59,7 @@ save_dir = os.path.join("..", "..", "reports", "figures")
 os.makedirs(save_dir, exist_ok=True)  # Crea la carpeta si no existe
 
 # Guardar la figura en la ruta especificada
-save_path = os.path.join(save_dir, "matriz_confusion.jpg")
+save_path = os.path.join(save_dir, "matriz_confusion.png")
 plt.savefig(save_path)  # Ajustar dpi si necesitas mayor resolución
 
 print(f"Figura guardada en {save_path}")
