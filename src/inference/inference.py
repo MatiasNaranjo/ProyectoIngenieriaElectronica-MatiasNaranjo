@@ -4,7 +4,7 @@ import pickle
 
 import matplotlib.pyplot as plt
 
-experimento = "experiment_100iter"
+experimento = "experiment_Rest"
 load_path = os.path.join(
     "..", "..", "experiments", experimento, "saved_history"
 )  # Ruta relativa

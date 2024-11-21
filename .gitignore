@@ -1,6 +1,7 @@
 *.jpg
 .venv/
 *.pkl
-data/
 *.keras
 *.png
+/data/
+/src/data/logs/
