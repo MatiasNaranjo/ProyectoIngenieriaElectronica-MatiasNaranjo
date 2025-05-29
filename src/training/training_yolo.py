@@ -13,12 +13,7 @@ print(torchvision.__version__)
 model = YOLO("yolov8n.pt")
 ver = 2
 
-# import logging
-# logging.basicConfig(level=logging.DEBUG)
-
-yaml_path = (
-    "D:/matna/Documents/Escritorio/Facultad/Proyecto/data/yolo/yolo-2/data_mod.yaml"
-)
+yaml_path = "D:/matna/Documents/Escritorio/Facultad/Proyecto/data/yolo/yolo-2/data.yaml"
 
 
 # Configuro y comienzo el entrenamiento del modelo YOLO
