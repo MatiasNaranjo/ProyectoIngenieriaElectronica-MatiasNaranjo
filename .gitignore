@@ -6,3 +6,6 @@
 /data/
 /src/data/logs/
 runs/
+*.pt
+src/data/__pycache__/
+src/training/__pycache__/
