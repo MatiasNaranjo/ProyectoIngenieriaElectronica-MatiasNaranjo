@@ -4,6 +4,75 @@ import paramiko
 from scp import SCPClient
 
 
+def exportar_a_raspberry(
+    local_dir,
+    remote_dir,
+    raspberry_user,
+    raspberry_ip,
+    files=None,
+    folders=None,
+    key_path=None,
+    passphrase=None,
+):
+    """
+    Copia files y folders desde tu PC a una Raspberry Pi por SSH.
+
+    Args:
+        local_dir (str): Ruta local base.
+        remote_dir (str): Ruta destino en la Raspberry Pi.
+        raspberry_user (str): Usuario SSH de la Raspberry.
+        raspberry_ip (str): IP o hostname de la Raspberry.
+        files (list): Lista de nombres de files.
+        folders (list): Lista de nombres de folders.
+    """
+    files = files or []
+    folders = folders or []
+
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+    print("Conectando a la Raspberry Pi...")
+    try:
+        if key_path:
+            key = paramiko.Ed25519Key.from_private_key_file(
+                key_path, password=passphrase
+            )
+            ssh.connect(hostname=raspberry_ip, username=raspberry_user, pkey=key)
+        else:
+            ssh.connect(hostname=raspberry_ip, username=raspberry_user)
+
+    except paramiko.AuthenticationException:
+        print("ERROR: fallo de autenticación. Revisá clave y passphrase.")
+        return
+
+    except Exception as e:
+        print(f"ERROR: no se pudo conectar a la Raspberry Pi: {e}")
+        return
+
+    with SCPClient(ssh.get_transport()) as scp:
+
+        # Copiar files
+        for file in files:
+            ruta = os.path.join(local_dir, file)
+            if os.path.isfile(ruta):
+                print(f"Copiando file: {file}")
+                scp.put(ruta, remote_path=remote_dir)
+            else:
+                print(f"file no encontrado: {file}")
+
+        # Copiar folders
+        for folder in folders:
+            ruta = os.path.join(local_dir, folder)
+            if os.path.isdir(ruta):
+                print(f"Copiando folder: {folder}")
+                scp.put(ruta, remote_path=remote_dir, recursive=True)
+            else:
+                print(f"Carpeta no encontrada: {folder}")
+
+    print("¡Transferencia completada!\n")
+    ssh.close()
+
+
 def importar_de_raspberry(
     remote_dir,
     local_dir,
