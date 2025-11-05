@@ -6,9 +6,15 @@ class FrameProcessor:
         Parámetros:
             picam2: Instancia de la cámara.
             model: Modelo de Machine Learning para realizar predicciones.
+            imgsz (int): Tamaño de la imagen para el modelo.
+            conf (float): Umbral de confianza para las predicciones.
+            iou (float): Umbral de IoU para las predicciones.
         """
         self.picam2 = picam2
         self.model = model
+        self.imgsz = 1440
+        self.conf = 0.5
+        self.iou = 0.3
 
     def capture_frame(self):
         """Captura un frame y lo devuelve como un numpy.ndarray."""
