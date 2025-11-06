@@ -1,5 +1,5 @@
 class FrameProcessor:
-    def __init__(self, picam2, model):
+    def __init__(self, picam2, model, imgsz=1440, conf=0.5, iou=0.3):
         """
         Inicializa el procesador de frames.
 
@@ -13,9 +13,9 @@ class FrameProcessor:
         """
         self.picam2 = picam2
         self.model = model
-        self.imgsz = 1440
-        self.conf = 0.5
-        self.iou = 0.3
+        self.imgsz = imgsz
+        self.conf = conf
+        self.iou = iou
         self.last_results = None
 
     def capture_frame(self):
@@ -23,10 +23,26 @@ class FrameProcessor:
         return self.picam2.capture_array()
 
     def predict_frame(self, frame):
-        """Realiza la predicción usando el modelo YOLO."""
+        """Realiza la predicción usando el modelo y devuelve los resultados procesados."""
         results = self.model.predict(
             frame, imgsz=self.imgsz, conf=self.conf, iou=self.iou, verbose=False
         )
 
-        self.last_results = results[0]  # Guarda la ultima predicción
+        detections = []
+        for box in results[0].boxes:
+            x1, y1, x2, y2 = box.xyxy[0].tolist()
+            conf = float(box.conf)
+            cls_id = int(box.cls)
+            cls_name = self.model.names[cls_id]
+
+            detections.append(
+                {
+                    "bbox": (x1, y1, x2, y2),
+                    "class_id": cls_id,
+                    "class_name": cls_name,
+                    "confidence": conf,
+                }
+            )
+        self.last_results = detections
+
         return self.last_results
