@@ -2,6 +2,7 @@ import os
 import time
 from datetime import datetime
 
+import libcamera
 from picamera2 import Picamera2
 
 
@@ -20,7 +21,8 @@ def init_camera(resolution=1440):
     # Obtiene la resolución del sensor
     sensor_size = picam2.sensor_resolution
     config = picam2.create_still_configuration(
-        main={"format": "RGB888", "size": (resolution, resolution)}
+        main={"format": "RGB888", "size": (resolution, resolution)},
+        transform=libcamera.Transform(hflip=1, vflip=1),
     )
 
     # Aplica la configuración y arranca la cámara
@@ -59,7 +61,7 @@ def capture_photos(picam2, output_dir, n_photos=40, delay=0.5):
         gain = metadata.get("AnalogueGain", "N/A")
 
         # Muestra por consola información de la captura
-        print(f"Foto {i+1}/{n_photos} -> {filename}")
+        print(f"Foto {i + 1}/{n_photos} -> {filename}")
         print(f"Exposición: {exposure_time} µs | Ganancia: {gain}")
 
         # Libera el request
