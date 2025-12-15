@@ -102,6 +102,41 @@ class ConfigLoader:
         # Cargar variables de entorno desde el archivo
         return dotenv_values(path)
 
+    def _expand_env_by_prefix(self, env: dict, config_class):
+        """
+        Convierte variables de entorno planas en una estructura anidada
+        compatible con el modelo de configuración.
+
+        Ejemplo:
+            ROBOFLOW_API_KEY=123
+        Se transforma en:
+            {"roboflow": {"api_key": "123"}}
+
+        """
+        structured = {}
+        # Normalizar las claves del ENV
+        normalized_env = {k.lower(): v for k, v in env.items()}
+
+        # Recorrer las secciones del dataclass principal (AppConfig)
+        for section_name in config_class.__annotations__.keys():
+            # Construir el prefijo
+            prefix = section_name.lower() + "_"
+            section_data = {}
+
+            # Buscar variables que coincidan con el prefijo
+            for key, value in normalized_env.items():
+                # Si empieza con el prefijo de la sección
+                if key.startswith(prefix):
+                    # Remover el prefijo para obtener la clave final
+                    clean_key = key[len(prefix) :]
+                    section_data[clean_key] = value
+
+            # Agregar sección solo si contiene datos
+            if section_data:
+                structured[section_name] = section_data
+
+        return structured
+
     def detect_device(self):
         """
         Detecta si se está ejecutando en:
