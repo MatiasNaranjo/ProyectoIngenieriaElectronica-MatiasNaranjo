@@ -4,6 +4,7 @@ from dataclasses import is_dataclass
 from pathlib import Path
 
 import yaml
+from dotenv import dotenv_values
 
 BASE_DIR = Path(__file__).resolve().parents[2]
 
@@ -77,6 +78,29 @@ class ConfigLoader:
         # Cargar YAML de forma segura
         with open(path, "r") as f:
             return yaml.safe_load(f) or {}
+
+    def _load_env(self):
+        """
+        Carga variables de entorno desde un archivo .env específico según
+        el dispositivo y la funcionalidad.
+
+        El nombre del archivo sigue el patrón:
+        <device>_<func_name>.env
+
+        Si el archivo no existe, retorna un diccionario vacío.
+        """
+        # Nombre dinámico del archivo .env
+        filename = f"{self.device}_{self.func_name}.env"
+
+        # Ruta completa al archivo .env
+        path = BASE_DIR / "env" / filename
+
+        # Si no existe el archivo, no se interrumpe el flujo
+        if not path.exists():
+            return {}
+
+        # Cargar variables de entorno desde el archivo
+        return dotenv_values(path)
 
     def detect_device(self):
         """
