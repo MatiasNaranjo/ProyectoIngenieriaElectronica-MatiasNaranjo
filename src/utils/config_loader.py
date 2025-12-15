@@ -3,6 +3,8 @@ import platform
 from dataclasses import is_dataclass
 from pathlib import Path
 
+import yaml
+
 BASE_DIR = Path(__file__).resolve().parents[2]
 
 
@@ -50,6 +52,31 @@ class ConfigLoader:
 
         # Devuelve la clase de configuración (no la instancia)
         return config_class
+
+    def _load_yaml(self):
+        """
+        Carga la configuración desde un archivo YAML específico según
+        el dispositivo y la funcionalidad.
+
+        El nombre del archivo sigue el patrón:
+        config_deploy_<device>_<func_name>.yaml
+
+        Si el archivo no existe, retorna un diccionario vacío para permitir
+        el uso de valores por defecto o variables de entorno.
+        """
+        # Nombre dinámico del archivo de configuración
+        filename = f"config_deploy_{self.device}_{self.func_name}.yaml"
+
+        # Ruta completa al archivo YAML dentro del proyecto
+        path = BASE_DIR / "config" / filename
+
+        # Si el archivo no existe, no se rompe el flujo
+        if not path.exists():
+            return {}
+
+        # Cargar YAML de forma segura
+        with open(path, "r") as f:
+            return yaml.safe_load(f) or {}
 
     def detect_device(self):
         """
