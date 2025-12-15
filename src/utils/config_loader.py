@@ -1,5 +1,6 @@
 import importlib
 import platform
+from copy import deepcopy
 from dataclasses import is_dataclass
 from pathlib import Path
 
@@ -136,6 +137,36 @@ class ConfigLoader:
                 structured[section_name] = section_data
 
         return structured
+
+    def _deep_merge(self, base, override):
+        """
+        Combina recursivamente dos diccionarios.
+
+        - Los valores de `override` tienen prioridad sobre `base`.
+        - Si una clave existe en ambos diccionarios y ambos valores son dict,
+        se realiza un merge profundo.
+        - El diccionario base no se modifica (se trabaja sobre una copia).
+
+        Este método es utilizado para combinar:
+        - Configuración base (YAML)
+        - Overrides provenientes de variables de entorno (env)
+        """
+        # Copia profunda para evitar mutar el diccionario original
+        result = deepcopy(base)
+        for key, val in override.items():
+            # Si ambos valores son diccionarios, merge recursivo
+            if (
+                key in result
+                and isinstance(result[key], dict)
+                and isinstance(val, dict)
+            ):
+                result[key] = self._deep_merge(result[key], val)
+            else:
+                # Caso contrario: override directo
+
+                result[key] = val
+
+        return result
 
     def detect_device(self):
         """
