@@ -1,4 +1,6 @@
+import importlib
 import platform
+from dataclasses import is_dataclass
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parents[2]
@@ -28,6 +30,26 @@ class ConfigLoader:
         """
         self.func_name = func_name
         self.device = self.detect_device()
+
+    def _load_config_class(self):
+        # Construye dinámicamente el path del módulo de configuración
+        module_path = (
+            f"src.utils.config.types.config_types_{self.device}_{self.func_name}"
+        )
+
+        # Importa el módulo de configuración en tiempo de ejecución
+        # Ejemplo: src.utils.config.types.config_types_pc_training
+        module = importlib.import_module(module_path)
+
+        class_name = "AppConfig"
+        # Obtiene la clase AppConfig desde el módulo importado
+        config_class = getattr(module, class_name)
+
+        if not is_dataclass(config_class):
+            raise TypeError(f"{class_name} tiene que se un dataclass")
+
+        # Devuelve la clase de configuración (no la instancia)
+        return config_class
 
     def detect_device(self):
         """
