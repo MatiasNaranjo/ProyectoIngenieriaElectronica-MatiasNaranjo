@@ -13,3 +13,4 @@ src/utils/__pycache__/
 # Entorno
 .env
 config_deploy*
+env/
