@@ -1,3 +1,4 @@
+import platform
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parents[2]
@@ -27,3 +28,11 @@ class ConfigLoader:
         """
         self.func_name = func_name
         self.device = self.detect_device()
+
+    def detect_device(self):
+        """
+        Detecta si se está ejecutando en:
+        - PC Windows → 'pc'
+        - Raspberry Pi o Linux ARM → 'raspi'
+        """
+        return "raspi" if platform.system().lower() != "windows" else "pc"
