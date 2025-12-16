@@ -1,11 +1,11 @@
 import importlib
 import platform
 from copy import deepcopy
-from dataclasses import is_dataclass
 from pathlib import Path
 
 import yaml
 from dotenv import dotenv_values
+from pydantic import BaseModel
 
 BASE_DIR = Path(__file__).resolve().parents[2]
 
@@ -49,8 +49,8 @@ class ConfigLoader:
         # Obtiene la clase AppConfig desde el módulo importado
         config_class = getattr(module, class_name)
 
-        if not is_dataclass(config_class):
-            raise TypeError(f"{class_name} tiene que se un dataclass")
+        if not issubclass(config_class, BaseModel):
+            raise TypeError(f"{class_name} debe heredar de BaseModel")
 
         # Devuelve la clase de configuración (no la instancia)
         return config_class
