@@ -35,6 +35,34 @@ class ConfigLoader:
         self.func_name = func_name
         self.device = self.detect_device()
 
+    def load(self):
+        """
+        Carga y construye la configuración final del proyecto combinando:
+        - Archivo YAML base
+        - Variables de entorno específicas
+
+        Retorna una instancia del modelo de configuración validado.
+        """
+        # Cargar clase de configuración dinámica
+        config_class = self._load_config_class()
+
+        # Cargar configuración desde YAML
+        yaml_data = self._load_yaml()
+
+        # Cargar variables de entorno
+        env_data = self._load_env()
+
+        # Expandir variables de entorno a estructura anidada
+        structured_env = self._expand_env_by_prefix(env_data, config_class)
+
+        # Combinar configuración YAML con overrides de ENV
+        merged_data = self._deep_merge(yaml_data, structured_env)
+
+        # Validar y construir configuración final
+        config = config_class.model_validate(merged_data)
+
+        return config
+
     def _load_config_class(self):
         # Construye dinámicamente el path del módulo de configuración
         module_path = (
