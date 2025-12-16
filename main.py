@@ -1,13 +1,32 @@
-import os
-
-abs_path = "D:/matna/Documents/Escritorio/Facultad/Proyecto"
-os.chdir(abs_path)  # Cambio el directorio
-
 from src.data.data_yolo import descargar_dataset
 from src.training.training_yolo import entrenar_yolo
+from src.utils.config_loader import BASE_DIR, ConfigLoader
 
-api_key = "1BqdoBrABHEibVODyrPg"
-version = 8
 
-descargar_dataset(abs_path, version=version, api_key=api_key)
-entrenar_yolo(abs_path=abs_path, version=version)
+def main():
+    config = ConfigLoader("train").load()
+    # Descargar dataset desde Roboflow
+    descargar_dataset(
+        version=config.roboflow.version,
+        api_key=config.roboflow.api_key,
+        yolo_ver=config.roboflow.yolo_ver,
+        base_path=BASE_DIR,
+        workspace=config.roboflow.workspace,
+        project_name=config.roboflow.project_name,
+    )
+
+    # Entrenar modelo YOLO
+    entrenar_yolo(
+        base_path=BASE_DIR,
+        version=config.training.version,
+        imgsz=config.training.imgsz,
+        batch=config.training.batch,
+        epochs=config.training.epochs,
+        device=config.training.device,
+        amp=config.training.amp,
+        workers=config.training.workers,
+    )
+
+
+if __name__ == "__main__":
+    main()
