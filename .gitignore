@@ -7,9 +7,7 @@
 /src/data/logs/
 runs/
 *.pt
-src/data/__pycache__/
-src/training/__pycache__/
-src/utils/__pycache__/
+__pycache__/
 # Entorno
 .env
 config_deploy*
