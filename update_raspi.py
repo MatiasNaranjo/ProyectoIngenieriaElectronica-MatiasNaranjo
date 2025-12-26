@@ -1,43 +1,32 @@
-import os
-import sys
-
-# Agrega el directorio raíz al path
-BASE_DIR = r"D:\matna\Documents\Escritorio\Facultad\Proyecto"
-sys.path.append(BASE_DIR)
-
+from src.utils.config_loader import ConfigLoader
 from src.utils.files import exportar_a_raspberry, importar_de_raspberry
 
-# Variables
-LOCAL_DIR = r"D:\matna\Documents\Escritorio\Facultad\Proyecto\Raspberry"
-RASPI_DIR = "/home/matna/proyecto"
-RASPI_USER = "matna"
-RASPI_IP = "raspberrypi"
-key_path = "C:/Users/matna/.ssh/id_ed25519"
-passphrase = "naranjo6201919"
 
-files_up = ["main_raspi.py", "capture_dataset.py"]
-folders_up = ["model", "src"]
-folders_down = ["output"]
+def main():
+    config = ConfigLoader("update").load()
+    # Copiar archivos de la PC a Raspberry PI
+    exportar_a_raspberry(
+        local_dir=config.pc.dir,
+        remote_dir=config.raspi.dir,
+        raspberry_user=config.raspi.user,
+        raspberry_ip=config.raspi.ip,
+        files=config.pc.files_up,
+        folders=config.pc.folders_up,
+        key_path=config.pc.key_path,
+        passphrase=config.pc.passphrase,
+    )
 
-# Copiar archivos de la PC a Raspberry PI
-exportar_a_raspberry(
-    LOCAL_DIR,
-    RASPI_DIR,
-    RASPI_USER,
-    RASPI_IP,
-    files_up,
-    folders_up,
-    key_path,
-    passphrase,
-)
+    # Copiar archivos de RaspberryPI a la PC
+    importar_de_raspberry(
+        remote_dir=config.raspi.dir,
+        local_dir=config.pc.dir,
+        raspberry_user=config.raspi.user,
+        raspberry_ip=config.raspi.ip,
+        folders=config.raspi.folders_down,
+        key_path=config.pc.key_path,
+        passphrase=config.pc.passphrase,
+    )
 
-# Copiar archivos de RaspberryPI a la PC
-importar_de_raspberry(
-    RASPI_DIR,
-    LOCAL_DIR,
-    RASPI_USER,
-    RASPI_IP,
-    folders_down,
-    key_path,
-    passphrase,
-)
+
+if __name__ == "__main__":
+    main()
