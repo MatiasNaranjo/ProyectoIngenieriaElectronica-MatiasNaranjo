@@ -50,6 +50,9 @@ def exportar_a_raspberry(
         return
 
     with SCPClient(ssh.get_transport()) as scp:
+        # Crear directorio remoto si no existe
+        ssh.exec_command(f"mkdir -p {remote_dir}")
+
         # Copiar files
         for file in files:
             ruta = os.path.join(local_dir, file)
