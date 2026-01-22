@@ -2,23 +2,19 @@ import logging
 import os
 import time
 
+from src.camera.camera_utils import init_camera
 from src.inference.inference import FrameProcessor
-from src.utils.camera_utils import init_camera
 from ultralytics import YOLO
+
+from src.utils.config_loader import ConfigLoader
 
 logging.basicConfig(
     level=logging.INFO,  # mostrar mensajes INFO y superiores
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
 
-# Carpeta donde se guardarán las imágenes
-SAVE_DIR = "/home/matna/proyecto/output/inference_result"
 
-# Modelo que realiza la inferencia
-MODEL_PATH = "/home/matna/proyecto/model/raspi_model.pt"
-
-
-def main(picam2):
+def main(config, picam2):
     """
     Script principal de inferencia para Raspberry Pi.
 
@@ -28,14 +24,15 @@ def main(picam2):
 
 
     Args:
+        config: configuración de la aplicación cargada.
         picam2: instancia de la cámara inicializada.
     """
     logging.info("Iniciando aplicación de inferencia")
 
-    os.makedirs(SAVE_DIR, exist_ok=True)
+    os.makedirs(config.inference.inference_dir, exist_ok=True)
 
     # Cargar el modelo
-    model = YOLO(MODEL_PATH)
+    model = YOLO(config.inference.model_path)
     logging.info("Modelo cargado, task: %s\n", model.task)
 
     # Inicializar el procesador de frames
@@ -43,11 +40,9 @@ def main(picam2):
 
     # Parámetros de ejecución del bucle de captura
     frame_count = 0  # Contador de frames procesados
-    max_frames = 2  # Cantidad de frames a procesar
-    frame_delay = 1  # Tiempo entre capturas (segundos)
 
-    while frame_count < max_frames:
-        time.sleep(frame_delay)  # espera entre frames
+    while frame_count < config.inference.max_frames:
+        time.sleep(config.inference.frame_delay)  # espera entre frames
         frame_count += 1
         logging.info(f"Procesando frame {frame_count}...")
 
@@ -73,16 +68,21 @@ def main(picam2):
         logging.info("Total de productos detectados: %d\n", len(results))
 
         # Dibujar y guardar detecciones
-        processor.draw_detections(frame, path=SAVE_DIR, frame_count=frame_count)
+        processor.draw_detections(
+            frame, path=config.inference.inference_dir, frame_count=frame_count
+        )
 
 
 if __name__ == "__main__":
+    # Cargar configuración
+    config = ConfigLoader(func_name="inference").load()
+
     # Inicializar la cámara
-    picam2 = init_camera(resolution=1440)
+    picam2 = init_camera(resolution=config.inference.resolution)
 
     try:
         # Ejecutar el script principal
-        main(picam2)
+        main(config, picam2)
 
     except KeyboardInterrupt:
         logging.info("Detenido por el usuario")
