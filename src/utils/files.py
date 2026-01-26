@@ -50,6 +50,8 @@ def exportar_a_raspberry(
         return
 
     with SCPClient(ssh.get_transport()) as scp:
+        # Crear directorio remoto si no existe
+        ssh.exec_command(f"mkdir -p {remote_dir}")
 
         # Copiar files
         for file in files:
@@ -151,3 +153,35 @@ def importar_de_raspberry(
     print(f"Hay {cant_exist} archivos que ya existen.")
     print("¡Descarga completada!\n")
     ssh.close()
+
+
+def list_files_by_prefix(directory, prefix):
+    """
+    Devuelve una lista de archivos dentro de un directorio
+    cuyos nombres comienzan con un prefijo dado.
+
+    Args:
+        directory (str): Ruta del directorio a inspeccionar.
+        prefix (str): Prefijo del nombre del archivo.
+
+    Returns:
+        list[str]: Lista de nombres de archivos.
+    """
+    if not os.path.isdir(directory):
+        raise FileNotFoundError(f"Directorio no encontrado: {directory}")
+
+    files = []
+    items = os.listdir(directory)
+
+    for item in items:
+        file_path = os.path.join(directory, item)
+
+        if not os.path.isfile(file_path):
+            continue
+
+        if not item.startswith(prefix):
+            continue
+
+        files.append(item)
+
+    return files
