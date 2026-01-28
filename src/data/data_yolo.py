@@ -9,6 +9,7 @@ def descargar_dataset(
     api_key=None,
     yolo_ver="yolov8",
     base_path=None,
+    data_dir="data/yolo",
     workspace="proyecto-final-labels",
     project_name="proyecto_final_electronica",
 ):
@@ -35,7 +36,7 @@ def descargar_dataset(
     base_path = Path(base_path) if base_path else cwd_original
 
     # Definir la ruta donde se descargarán los datos del modelo
-    download_dir = base_path / "data" / "yolo"
+    download_dir = base_path / data_dir
     download_dir.mkdir(parents=True, exist_ok=True)
 
     try:
