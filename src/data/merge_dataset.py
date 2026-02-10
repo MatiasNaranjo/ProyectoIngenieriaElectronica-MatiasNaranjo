@@ -1,6 +1,19 @@
 import shutil
 from pathlib import Path
 
+import yaml
+
+
+def copy_dataset_metadata(src: Path, dst: Path) -> None:
+    data = yaml.safe_load(src.read_text(encoding="utf-8"))
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    yaml.safe_dump(
+        {k: data[k] for k in ("nc", "names", "roboflow") if k in data},
+        dst.open("w", encoding="utf-8"),
+        sort_keys=False,
+        allow_unicode=True,
+    )
+
 
 def find_roboflow_dataset_root(input_dir: Path) -> Path:
     # Obtener todas las subcarpetas dentro del directorio de entrada
@@ -50,5 +63,9 @@ def merge_roboflow_dataset(input_dir: str, output_dir: str) -> None:
         # Copiar todas las etiquetas del split a la carpeta unificada
         for lbl in (split_dir / "labels").iterdir():
             shutil.copy(lbl, labels_out / lbl.name)
+
+    src_yaml = dataset_root / "data.yaml"
+    if src_yaml.exists():
+        copy_dataset_metadata(src_yaml, output_dir / "dataset_meta.yaml")
 
     print("Dataset Roboflow mergeado correctamente.")
