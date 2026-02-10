@@ -3,6 +3,7 @@ from pydantic import BaseModel
 
 class PipelineConfig(BaseModel):
     download: bool = True
+    merge: bool = True
 
 
 class RoboflowConfig(BaseModel):
