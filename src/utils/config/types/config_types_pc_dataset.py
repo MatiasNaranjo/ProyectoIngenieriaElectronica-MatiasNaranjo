@@ -4,6 +4,7 @@ from pydantic import BaseModel
 class PipelineConfig(BaseModel):
     download: bool = True
     merge: bool = True
+    split: bool = True
 
 
 class RoboflowConfig(BaseModel):
@@ -17,6 +18,7 @@ class RoboflowConfig(BaseModel):
 class PathsConfig(BaseModel):
     data_yolo: str | None = None
     data_yolo_raw: str | None = None
+    data_yolo_merged: str | None = None
 
 
 class AppConfig(BaseModel):
