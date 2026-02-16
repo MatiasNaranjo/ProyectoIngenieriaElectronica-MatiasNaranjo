@@ -15,7 +15,11 @@ def main():
 
     # Capturar fotos
     capture_photos(
-        picam2, output_dir, n_photos=config.cam.n_photos, delay=config.cam.delay
+        picam2,
+        output_dir=output_dir,
+        producto=config.cam.clase,
+        n_photos=config.cam.n_photos,
+        delay=config.cam.delay,
     )
 
 
