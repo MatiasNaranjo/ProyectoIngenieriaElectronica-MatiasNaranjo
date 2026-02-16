@@ -18,8 +18,7 @@ def init_camera(resolution=1440):
     """
     picam2 = Picamera2()
 
-    # Obtiene la resolución del sensor
-    sensor_size = picam2.sensor_resolution
+    # Configura la cámara para capturar imágenes en formato RGB888 con la resolución deseada
     config = picam2.create_still_configuration(
         main={"format": "RGB888", "size": (resolution, resolution)},
         transform=libcamera.Transform(hflip=1, vflip=1),
