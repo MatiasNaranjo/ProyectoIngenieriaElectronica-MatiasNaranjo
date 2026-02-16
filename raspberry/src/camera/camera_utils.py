@@ -1,6 +1,8 @@
 import os
+import re
 import time
 from datetime import datetime
+from pathlib import Path
 
 import libcamera
 from picamera2 import Picamera2
@@ -31,6 +33,20 @@ def init_camera(resolution=1440):
     time.sleep(2)  # Espera para estabilizar la imagen
 
     return picam2
+
+
+def get_next_session(output_dir: Path, producto: str) -> int:
+    output_dir = Path(output_dir)
+
+    pattern = re.compile(rf"{producto}_s(\d+)_\d+\.jpg")
+    sessions = []
+
+    for img in output_dir.glob(f"{producto}_s*_*.jpg"):
+        match = pattern.match(img.name)
+        if match:
+            sessions.append(int(match.group(1)))
+
+    return max(sessions, default=0) + 1
 
 
 def capture_photos(picam2, output_dir, n_photos=40, delay=0.5):
