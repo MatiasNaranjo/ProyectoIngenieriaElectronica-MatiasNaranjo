@@ -27,3 +27,18 @@ def split_by_session(
 
     # Crear carpetas para los splits
     create_split_folders(output_path, split_ratio)
+
+    # Carpetas de imágenes y etiquetas del dataset original
+    images_path = input_path / "images"
+    labels_path = input_path / "labels"
+
+    # Validar que existan las carpetas de imágenes y etiquetas
+    if not images_path.exists() or not labels_path.exists():
+        raise FileNotFoundError("El dataset debe contener carpetas 'images' y 'labels'")
+
+    # Obtener lista de imágenes en el dataset
+    images = list(images_path.glob("*.jpg"))
+
+    # Validar que se hayan encontrado imágenes
+    if not images:
+        raise ValueError("No se encontraron imágenes en el dataset")
