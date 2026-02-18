@@ -42,6 +42,13 @@ def get_sessions_by_product(images: list[Path]) -> dict[str, set[str]]:
     return product_sessions
 
 
+def common_sessions(product_sessions: dict[str, set[str]]) -> set[str]:
+    # Devuelve el conjunto de sesiones que están presentes en todos los productos
+    if not product_sessions:
+        return set()
+    return set.intersection(*product_sessions.values())
+
+
 def split_by_session(
     input_dataset_path: str,
     output_dataset_path: str,
@@ -72,3 +79,6 @@ def split_by_session(
 
     # Obtener sesiones por producto
     sessions_by_product = get_sessions_by_product(images)
+
+    # Obtener sesiones comunes a todos los productos
+    common = sorted(common_sessions(sessions_by_product))
