@@ -16,12 +16,14 @@ def create_split_folders(dst_path: Path, split_ratio: dict[str, float]) -> None:
 
 
 def split_by_session(
-    input_dataset_path: Path,
-    output_dataset_path: Path,
+    input_dataset_path: str,
+    output_dataset_path: str,
     split_ratio: dict[str, float],
 ) -> None:
+    input_path = Path(input_dataset_path)
+    output_path = Path(output_dataset_path)
     # Validar el split_ratio
     validate_split_ratio(split_ratio)
 
     # Crear carpetas para los splits
-    create_split_folders(output_dataset_path, split_ratio)
+    create_split_folders(output_path, split_ratio)
