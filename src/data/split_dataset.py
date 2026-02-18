@@ -1,4 +1,9 @@
+import re
+from collections import defaultdict
 from pathlib import Path
+
+# Constantes del módulo
+FILENAME_PATTERN = re.compile(r"^(?P<product>.*?)_(?P<session>s\d+)_")
 
 
 def validate_split_ratio(split_ratio: dict[str, float]) -> None:
@@ -13,6 +18,28 @@ def create_split_folders(dst_path: Path, split_ratio: dict[str, float]) -> None:
     for split in split_ratio.keys():
         (dst_path / "split" / split / "images").mkdir(parents=True, exist_ok=True)
         (dst_path / "split" / split / "labels").mkdir(parents=True, exist_ok=True)
+
+
+def parse_filename(filename: str):
+    # Verificar que el nombre del archivo sigue el patrón esperado
+    match = FILENAME_PATTERN.match(filename)
+    if not match:
+        raise ValueError(f"No se pudo parsear {filename}")
+    return match.group("product"), match.group("session")
+
+
+def get_sessions_by_product(images: list[Path]) -> dict[str, set[str]]:
+    # Devuelve un diccionario:
+    # producto -> conjunto de sesiones disponibles
+
+    product_sessions = defaultdict(set)
+
+    for img_path in images:
+        product, session = parse_filename(img_path.name)
+        # Agrega la sesión al conjunto del producto
+        product_sessions[product].add(session)
+
+    return product_sessions
 
 
 def split_by_session(
@@ -42,3 +69,6 @@ def split_by_session(
     # Validar que se hayan encontrado imágenes
     if not images:
         raise ValueError("No se encontraron imágenes en el dataset")
+
+    # Obtener sesiones por producto
+    sessions_by_product = get_sessions_by_product(images)
