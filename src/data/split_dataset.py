@@ -1,5 +1,6 @@
 import random
 import re
+import shutil
 from collections import defaultdict
 from pathlib import Path
 from typing import Dict, Set
@@ -15,11 +16,20 @@ def validate_split_ratio(split_ratio: dict[str, float]) -> None:
         raise ValueError("Los porcentajes deben sumar 1.0")
 
 
-def create_split_folders(dst_path: Path, split_ratio: dict[str, float]) -> None:
+def create_split_folders(dst_path: Path, session_to_split: dict[str, str]) -> None:
     # Crear carpetas para cada split (train, val y/o test) dentro de dst_path/split/
-    for split in split_ratio.keys():
-        (dst_path / "split" / split / "images").mkdir(parents=True, exist_ok=True)
-        (dst_path / "split" / split / "labels").mkdir(parents=True, exist_ok=True)
+
+    split_root = dst_path / "split"
+    # Si ya existe, eliminarlo completamente
+    if split_root.exists():
+        shutil.rmtree(split_root)
+
+    # Obtener los splits únicos a crear
+    splits = set(session_to_split.values())
+
+    for split in splits:
+        (split_root / split / "images").mkdir(parents=True, exist_ok=True)
+        (split_root / split / "labels").mkdir(parents=True, exist_ok=True)
 
 
 def parse_filename(filename: str):
