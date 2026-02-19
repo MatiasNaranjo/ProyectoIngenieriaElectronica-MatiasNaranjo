@@ -113,6 +113,42 @@ def common_sessions(product_sessions: dict[str, set[str]]) -> set[str]:
     return set.intersection(*product_sessions.values())
 
 
+def copy_split_files(
+    source_root: Path,
+    destination_root: Path,
+    session_to_split: Dict[str, str],
+) -> None:
+    source_images = source_root / "images"
+    source_labels = source_root / "labels"
+
+    # Crear estructura destino train/val/test
+    create_split_folders(destination_root, session_to_split)
+
+    for img_path in source_images.iterdir():
+        # Si no es un archivo, lo ignora
+        if not img_path.is_file():
+            continue
+
+        # Tomar la sesión del nombre del archivo
+        _, session = parse_filename(img_path.name)
+
+        # Buscar a qué split fue asignada esa sesión
+        split = session_to_split.get(session)
+        if split is None:
+            continue
+
+        # Si la sesión no tiene label, se ignora
+        label_source = source_labels / f"{img_path.stem}.txt"
+        if label_source.exists():
+            # Copiar imagen y label a su carpeta correspondiente
+            dest_img = destination_root / "split" / split / "images" / img_path.name
+            dest_label = (
+                destination_root / "split" / split / "labels" / label_source.name
+            )
+            shutil.copy2(img_path, dest_img)
+            shutil.copy2(label_source, dest_label)
+
+
 def split_by_session(
     input_dataset_path: str,
     output_dataset_path: str,
@@ -123,9 +159,6 @@ def split_by_session(
     output_path = Path(output_dataset_path)
     # Validar el split_ratio
     validate_split_ratio(split_ratio)
-
-    # Crear carpetas para los splits
-    create_split_folders(output_path, split_ratio)
 
     # Carpetas de imágenes y etiquetas del dataset original
     images_path = input_path / "images"
@@ -150,3 +183,6 @@ def split_by_session(
 
     # Asignar sesiones a splits según el split_ratio y el seed para reproducibilidad
     split_sessions = assign_sessions_to_splits(common, split_ratio, seed=seed)
+
+    # Copiar archivos a sus carpetas correspondientes según el split asignado a su sesión
+    copy_split_files(input_path, output_path, split_sessions)
