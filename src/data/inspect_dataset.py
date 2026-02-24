@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List
+from typing import Dict, List
 
 
 class DatasetInspector:
@@ -27,3 +27,26 @@ class DatasetInspector:
                 valid_splits.append(split)
 
         return valid_splits
+
+    def count_images_per_split(self) -> Dict[str, int]:
+        # Cuenta cuántas imágenes hay en cada split (train, val, test)
+
+        image_counts = {}
+
+        for split in self.splits:
+            # Para cada split
+            images_dir = self.dataset_path / "split" / split / "images"
+
+            # Crea una lista de archivos que son imágenes
+            images = [
+                f
+                for f in images_dir.iterdir()
+                if f.is_file() and f.suffix.lower() in [".jpg", ".jpeg", ".png"]
+            ]
+            # Guarda el conteo de imágenes para ese split
+            image_counts[split] = len(images)
+
+        return image_counts
+
+    def summary_split(self) -> None:
+        counts = self.count_images_per_split()
