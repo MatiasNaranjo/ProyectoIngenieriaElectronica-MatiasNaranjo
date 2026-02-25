@@ -1,5 +1,8 @@
+from collections import defaultdict
 from pathlib import Path
 from typing import Dict, List
+
+import yaml
 
 
 class DatasetInspector:
@@ -65,6 +68,91 @@ class DatasetInspector:
             split: round((count / total) * 100, 2) for split, count in counts.items()
         }
 
-    def summary_split(self) -> None:
+    def total_labels_per_class(self) -> dict[str, int]:
+        # Retorna el total de labels por clase sumando todos los splits
+        # usando la misma lógica que _label_counts_from_files.
+        return self._label_counts_from_files()
+
+    def _load_class_names(self) -> dict[int, str]:
+        """Carga el mapping id -> nombre de clase desde `dataset_meta.yaml` si existe.
+
+        Espera que el YAML tenga una clave `names` como:
+        - lista: ["cls0", "cls1", ...]
+        - dict: {0: "cls0", 1: "cls1", ...}
+        """
+
+        # `dataset_meta.yaml` se copia al root del dataset durante el merge.
+        meta_path = self.dataset_path / "dataset_meta.yaml"
+        if not meta_path.exists():
+            return {}
+
+        data = yaml.safe_load(meta_path.read_text(encoding="utf-8")) or {}
+        names = data.get("names")
+
+        if isinstance(names, dict):
+            # Formato dict (a veces viene con keys como strings en YAML).
+            return {int(k): str(v) for k, v in names.items()}
+
+        if isinstance(names, list):
+            # Formato lista: el índice es el id de clase.
+            return {idx: str(name) for idx, name in enumerate(names)}
+
+        return {}
+
+    def _label_counts_from_files(self) -> dict[str, int]:
+        """Cuenta labels por clase leyendo los `.txt` en formato YOLO.
+
+        Supuesto YOLO: cada línea comienza con `class_id` (entero), seguido de coordenadas.
+        Se suman todas las instancias anotadas (no imágenes).
+        """
+
+        # `class_id -> nombre`. Si no hay YAML o falta una clase, se usa el id como string.
+        names_map = self._load_class_names()
+        counter: dict[str, int] = defaultdict(int)
+
+        for split in self.splits:
+            split_dir = self.dataset_path / "split" / split / "labels"
+            if not split_dir.exists():
+                continue
+
+            for label_file in split_dir.glob("*.txt"):
+                with label_file.open("r", encoding="utf-8") as f:
+                    for line in f:
+                        line = line.strip()
+                        if not line:
+                            continue
+
+                        # YOLO clásico: "class x_center y_center width height"
+                        parts = line.split()
+                        try:
+                            class_id = int(parts[0])
+                        except (ValueError, IndexError):
+                            # Línea inválida, se ignora
+                            continue
+
+                        class_name = names_map.get(class_id, str(class_id))
+                        counter[class_name] += 1
+
+        return dict(counter)
+
+    def group_classes_by_label_count(self) -> dict[int, list[str]]:
+        # Agrupa clases que tienen la misma cantidad de labels.
+
+        class_counts = self._label_counts_from_files()
+        grouped: dict[int, list[str]] = defaultdict(list)
+
+        for class_name, count in class_counts.items():
+            grouped[count].append(class_name)
+
+        return dict(grouped)
+
+    def summary_split(self) -> dict:
         counts = self.count_images_per_split()
         percentages = self.compute_split_percentages()
+
+        # total de labels por clase
+        class_counts = self.total_labels_per_class()
+
+        # productos en split con misma cantidad de imágenes
+        grouped = self.group_classes_by_label_count()
+
