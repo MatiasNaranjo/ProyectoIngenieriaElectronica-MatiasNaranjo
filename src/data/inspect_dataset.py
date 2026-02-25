@@ -48,5 +48,23 @@ class DatasetInspector:
 
         return image_counts
 
+    def compute_split_percentages(self) -> Dict[str, float]:
+        # Calcula el porcentaje de imágenes que representa cada split respecto al total
+
+        # Primero obtiene el conteo de imágenes por split
+        counts = self.count_images_per_split()
+
+        # Luego suma el total de imágenes en todos los splits
+        total = sum(counts.values())
+
+        if total == 0:
+            raise ValueError("El dataset no contiene imágenes.")
+
+        # Calcula el porcentaje para cada split y lo retorna
+        return {
+            split: round((count / total) * 100, 2) for split, count in counts.items()
+        }
+
     def summary_split(self) -> None:
         counts = self.count_images_per_split()
+        percentages = self.compute_split_percentages()
