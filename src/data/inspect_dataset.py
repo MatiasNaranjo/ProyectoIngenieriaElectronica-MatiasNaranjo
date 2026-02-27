@@ -108,7 +108,7 @@ class DatasetInspector:
 
         # `class_id -> nombre`. Si no hay YAML o falta una clase, se usa el id como string.
         names_map = self._load_class_names()
-        counter: dict[str, int] = defaultdict(int)
+        counter: dict[str, int] = defaultdict[str, int](int)
 
         for split in self.splits:
             split_dir = self.dataset_path / "split" / split / "labels"
@@ -156,3 +156,17 @@ class DatasetInspector:
         # productos en split con misma cantidad de imágenes
         grouped = self.group_classes_by_label_count()
 
+        print("=== Resumen de splits ===")
+        for split in self.splits:
+            count = counts.get(split, 0)
+            pct = percentages.get(split, 0.0)
+            print(f"- {split}: {count} imágenes ({pct}%)")
+
+        print("\n=== Total de labels por clase ===")
+        for class_name, count in class_counts.items():
+            print(f"- {class_name}: {count} labels")
+
+        print("\n=== Clases agrupadas por cantidad de labels ===")
+        for count, class_names in grouped.items():
+            joined = ", ".join(sorted(class_names))
+            print(f"- {count} labels: {joined}")
