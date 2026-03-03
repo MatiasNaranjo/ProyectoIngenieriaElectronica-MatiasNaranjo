@@ -1,12 +1,10 @@
 import random
-import re
 import shutil
 from collections import defaultdict
 from pathlib import Path
 from typing import Dict, Set
 
-# Constantes del módulo
-FILENAME_PATTERN = re.compile(r"^(?P<product>.*?)_(?P<session>s\d+)_")
+from src.utils.files import parse_filename
 
 
 def validate_split_ratio(split_ratio: dict[str, float]) -> None:
@@ -30,14 +28,6 @@ def create_split_folders(dst_path: Path, session_to_split: dict[str, str]) -> No
     for split in splits:
         (split_root / split / "images").mkdir(parents=True, exist_ok=True)
         (split_root / split / "labels").mkdir(parents=True, exist_ok=True)
-
-
-def parse_filename(filename: str):
-    # Verificar que el nombre del archivo sigue el patrón esperado
-    match = FILENAME_PATTERN.match(filename)
-    if not match:
-        raise ValueError(f"No se pudo parsear {filename}")
-    return match.group("product"), match.group("session")
 
 
 def get_sessions_by_product(images: list[Path]) -> dict[str, set[str]]:

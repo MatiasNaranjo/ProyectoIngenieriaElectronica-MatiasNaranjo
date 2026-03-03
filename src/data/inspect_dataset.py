@@ -4,6 +4,8 @@ from typing import Dict, List
 
 import yaml
 
+from src.utils.files import parse_filename
+
 
 class DatasetInspector:
     def __init__(self, dataset_path: str | Path):
