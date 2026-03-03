@@ -26,6 +26,7 @@ def main():
             output_dir=config.paths.data_yolo,
         )
 
+    # Dividir el dataset en splits de sesiones
     if config.pipeline.split:
         split_by_session(
             input_dataset_path=config.paths.data_yolo_merged,
@@ -34,7 +35,7 @@ def main():
             seed=config.dataset.seed,
         )
 
-    # Inspect del dataset ya preparado
+    # Inspeccionar el dataset ya preparado
     if config.pipeline.inspect:
         inspector = DatasetInspector(config.paths.data_yolo)
         
