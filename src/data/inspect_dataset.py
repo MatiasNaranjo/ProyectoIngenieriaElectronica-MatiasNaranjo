@@ -146,6 +146,23 @@ class DatasetInspector:
 
         return dict(grouped)
 
+    def all_sessions_used(self) -> set[str]:
+        """Retorna el conjunto de todas las sesiones presentes en los splits."""
+
+        sessions: set[str] = set()
+
+        for split in self.splits:
+            images_dir = self.dataset_path / "split" / split / "images"
+
+            for img_path in images_dir.iterdir():
+                if not img_path.is_file():
+                    continue
+
+                # Usa la misma lógica de nombres que el split (parse_filename)
+                _, session = parse_filename(img_path.name)
+                sessions.add(session)
+
+        return sessions
     def summary_split(self) -> dict:
         counts = self.count_images_per_split()
         percentages = self.compute_split_percentages()
