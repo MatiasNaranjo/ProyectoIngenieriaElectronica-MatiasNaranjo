@@ -189,3 +189,8 @@ class DatasetInspector:
         for count, class_names in grouped.items():
             joined = ", ".join(sorted(class_names))
             print(f"- {count} labels: {joined}")
+        
+        print("\n=== Sesiones usadas ===")
+        sessions_used = self.all_sessions_used()
+        print("Cantidad de sesiones: " + str(len(sessions_used)))
+        print(f"Sesiones usadas: {', '.join(sorted(sessions_used))}")
