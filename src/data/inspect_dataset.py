@@ -175,7 +175,7 @@ class DatasetInspector:
         # productos en split con misma cantidad de imágenes
         grouped = self.group_classes_by_label_count()
 
-        print("=== Resumen de splits ===")
+        print("\n=== Resumen de splits ===")
         for split in self.splits:
             count = counts.get(split, 0)
             pct = percentages.get(split, 0.0)
