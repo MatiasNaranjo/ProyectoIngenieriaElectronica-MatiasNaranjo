@@ -5,6 +5,7 @@ class PipelineConfig(BaseModel):
     download: bool = True
     merge: bool = True
     split: bool = True
+    inspect: bool = True
 
 
 class RoboflowConfig(BaseModel):

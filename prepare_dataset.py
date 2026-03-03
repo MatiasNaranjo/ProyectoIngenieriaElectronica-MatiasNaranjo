@@ -1,4 +1,5 @@
 from src.data.data_yolo import descargar_dataset
+from src.data.inspect_dataset import DatasetInspector
 from src.data.merge_dataset import merge_roboflow_dataset
 from src.data.split_dataset import split_by_session
 from src.utils.config_loader import ConfigLoader
@@ -32,6 +33,13 @@ def main():
             split_ratio=config.dataset.split_cfg.model_dump(),
             seed=config.dataset.seed,
         )
+
+    # Inspect del dataset ya preparado
+    if config.pipeline.inspect:
+        inspector = DatasetInspector(config.paths.data_yolo)
+        
+        # Imprime el resumen del dataset
+        inspector.summary_split()
 
 
 if __name__ == "__main__":
