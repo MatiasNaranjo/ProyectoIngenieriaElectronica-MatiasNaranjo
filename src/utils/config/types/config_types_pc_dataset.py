@@ -31,6 +31,7 @@ class PathsConfig(BaseModel):
     data_yolo: str | None = None
     data_yolo_raw: str | None = None
     data_yolo_merged: str | None = None
+    yaml: str | None = None
 
 
 class AppConfig(BaseModel):

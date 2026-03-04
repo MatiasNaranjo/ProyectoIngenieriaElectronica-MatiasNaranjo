@@ -6,7 +6,7 @@ from ultralytics import YOLO
 
 
 def entrenar_yolo(
-    base_path=None,
+    yaml_path=None,
     version=8,
     imgsz=1440,
     batch=2,
@@ -31,6 +31,8 @@ def entrenar_yolo(
     Returns:
         model: objeto YOLO entrenado
     """
+    yaml_path = Path(yaml_path)
+
     # Verifico si PyTorch, CUDA y torchvision están instalados correctamente
     print(torch.__version__)
     print(torch.cuda.is_available())
@@ -40,10 +42,6 @@ def entrenar_yolo(
 
     # Cargo el modelo YOLO preentrenado
     model = YOLO("yolov8n.pt")
-
-    # Defino la ruta al archivo data.yaml del dataset
-    base_path = Path(base_path) if base_path else Path.cwd()
-    yaml_path = base_path / f"data/yolo/Proyecto_final_electronica-{version}/data.yaml"
 
     if not yaml_path.exists():
         raise FileNotFoundError(f"No se encontró el archivo YAML en {yaml_path}")
