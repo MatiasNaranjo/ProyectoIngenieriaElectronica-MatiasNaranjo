@@ -1,7 +1,11 @@
 import os
+import re
 
 import paramiko
 from scp import SCPClient
+
+# Constantes del módulo
+FILENAME_PATTERN = re.compile(r"^(?P<product>.*?)_(?P<session>s\d+)_")
 
 
 def exportar_a_raspberry(
@@ -185,3 +189,15 @@ def list_files_by_prefix(directory, prefix):
         files.append(item)
 
     return files
+
+def parse_filename(filename: str):
+    """Parsea nombres tipo producto_sXX_YYYY.ext y retorna (product, session)."""
+
+    # Se usa el stem (sin extensión) para que funcione con .jpg/.png/.txt, etc.
+    stem = os.path.splitext(filename)[0]
+
+    # Verificar que el nombre del archivo sigue el patrón esperado
+    match = FILENAME_PATTERN.match(stem)
+    if not match:
+        raise ValueError(f"No se pudo parsear {filename}")
+    return match.group("product"), match.group("session")
