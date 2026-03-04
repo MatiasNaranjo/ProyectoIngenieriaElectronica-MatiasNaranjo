@@ -1,14 +1,6 @@
 from pydantic import BaseModel
 
 
-class RoboflowConfig(BaseModel):
-    api_key: str | None = None
-    version: int | None = None
-    workspace: str | None = None
-    project_name: str | None = None
-    yolo_ver: str | None = None
-
-
 class TrainingConfig(BaseModel):
     version: int | None = None
     imgsz: int | None = None
@@ -19,6 +11,10 @@ class TrainingConfig(BaseModel):
     workers: int | None = None
 
 
+class PathConfig(BaseModel):
+    yaml: str | None = None
+
+
 class AppConfig(BaseModel):
-    roboflow: RoboflowConfig
     training: TrainingConfig
+    paths: PathConfig
