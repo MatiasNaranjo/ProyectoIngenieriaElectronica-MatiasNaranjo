@@ -4,6 +4,8 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Dict, Set
 
+import yaml
+
 from src.utils.files import parse_filename
 
 
@@ -139,14 +141,60 @@ def copy_split_files(
             shutil.copy2(label_source, dest_label)
 
 
+def generate_train_yaml(
+    yaml_original: str,
+    dataset_root: str,
+    output_yaml: str | None = None,
+):
+    """
+    Genera un data.yaml listo para entrenamiento YOLO
+    agregando path, train, val y test según existan.
+
+    Si output_yaml es None, sobreescribe yaml_original.
+    """
+
+    yaml_original = Path(yaml_original)
+    dataset_root = Path(dataset_root)
+
+    if output_yaml is None:
+        output_yaml = yaml_original
+    else:
+        output_yaml = Path(output_yaml)
+
+    # Leer el YAML original para obtener nc y names
+    with open(yaml_original, "r") as f:
+        data = yaml.safe_load(f)
+
+    # Mantengo nc y names
+    new_yaml = {
+        "names": data["names"],
+        "nc": data["nc"],
+        "path": str(dataset_root.resolve() / "split"),
+        "train": "train/images",
+        "val": "val/images",
+    }
+
+    # Si existe test lo agrego
+    if (dataset_root / "test/images").exists():
+        new_yaml["test"] = "test/images"
+
+    # Guardar el nuevo YAML en output_yaml
+    with open(output_yaml, "w") as f:
+        yaml.safe_dump(new_yaml, f, sort_keys=False)
+
+    print(f"YAML de entrenamiento generado en: {output_yaml}")
+
+
 def split_by_session(
     input_dataset_path: str,
     output_dataset_path: str,
+    yaml_path: str,
     split_ratio: dict[str, float],
     seed: int = 42,
 ) -> None:
     input_path = Path(input_dataset_path)
     output_path = Path(output_dataset_path)
+
     # Validar el split_ratio
     validate_split_ratio(split_ratio)
 
@@ -176,3 +224,9 @@ def split_by_session(
 
     # Copiar archivos a sus carpetas correspondientes según el split asignado a su sesión
     copy_split_files(input_path, output_path, split_sessions)
+
+    # Generar el YAML de entrenamiento para YOLO
+    generate_train_yaml(
+        yaml_original=yaml_path,
+        dataset_root=output_dataset_path,
+    )

@@ -31,6 +31,7 @@ def main():
         split_by_session(
             input_dataset_path=config.paths.data_yolo_merged,
             output_dataset_path=config.paths.data_yolo,
+            yaml_path=config.paths.yaml,
             split_ratio=config.dataset.split_cfg.model_dump(),
             seed=config.dataset.seed,
         )
@@ -38,7 +39,6 @@ def main():
     # Inspeccionar el dataset ya preparado
     if config.pipeline.inspect:
         inspector = DatasetInspector(config.paths.data_yolo)
-        
         # Imprime el resumen del dataset
         inspector.summary_split()
 
