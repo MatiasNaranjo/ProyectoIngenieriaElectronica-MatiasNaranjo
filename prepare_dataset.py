@@ -34,6 +34,7 @@ def main():
             yaml_path=config.paths.yaml,
             split_ratio=config.dataset.split_cfg.model_dump(),
             seed=config.dataset.seed,
+            mode_sessions=config.dataset.mode_sessions,
         )
 
     # Inspeccionar el dataset ya preparado
