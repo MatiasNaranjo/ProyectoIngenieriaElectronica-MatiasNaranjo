@@ -46,16 +46,34 @@ def get_next_session(output_dir: Path, producto: str) -> int:
     return max(sessions, default=0) + 1
 
 
-def capture_photos(picam2, output_dir, producto, n_photos=40, delay=0.5):
+def get_next_frame(output_dir: Path, filename_prefix: str, session: int) -> int:
+    # Busca el número de frame más alto para el producto y sesión dados, y devuelve el siguiente número disponible
+
+    # Defino formato del nombre de archivo: {filename_prefix}_s{session}_{n_frame}.jpg
+    pattern = re.compile(rf"{filename_prefix}_s{session:02d}_(\d+)\.jpg")
+    frames = []
+
+    for img in output_dir.glob(f"{filename_prefix}_s{session:02d}_*.jpg"):
+        match = pattern.match(img.name)
+        if match:
+            frames.append(int(match.group(1)))
+
+    return max(frames, default=-1) + 1
+
+
+def capture_photos(
+    picam2, output_dir, filename_prefix, n_photos=40, delay=0.5, session=None
+):
     """
     Captura una serie de fotos con la cámara y guarda información de exposición.
 
     Parámetros:
     - picam2 (Picamera2): Objeto de cámara inicializado.
     - output_dir (str): Carpeta donde se guardarán las fotos.
-    - producto (str): Nombre del producto para nombrar las fotos.
+    - filename_prefix (str): Prefijo para nombrar las fotos.
     - n_photos (int): Cantidad de fotos a capturar.
     - delay (float): Tiempo de espera entre fotos, en segundos.
+    - session (int, opcional): Número de sesión manual. Si no se proporciona, se calcula automáticamente.
     """
     # Crea un objeto Path
     output_dir = Path(output_dir)
@@ -63,11 +81,15 @@ def capture_photos(picam2, output_dir, producto, n_photos=40, delay=0.5):
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Obtiene el número de sesión siguiente para evitar sobrescribir fotos anteriores
-    session = get_next_session(output_dir, producto)
+    if session is None:
+        session = get_next_session(output_dir, filename_prefix)
 
-    for frame in range(n_photos):
-        # Genera un nombre de archivo con formato: producto_sXX_YYYY.jpg
-        filename = output_dir / f"{producto}_s{session:02d}_{frame:04d}.jpg"
+    # Obtiene el número de frame siguiente para evitar sobrescribir fotos anteriores
+    frame = get_next_frame(output_dir, filename_prefix, session)
+
+    for i in range(n_photos):
+        # Construye el nombre del archivo con el formato: {filename_prefix}_s{session}_{n_frame}.jpg
+        filename = output_dir / f"{filename_prefix}_s{session:02d}_{frame:04d}.jpg"
 
         # Captura una imagen
         request = picam2.capture_request()
@@ -79,11 +101,13 @@ def capture_photos(picam2, output_dir, producto, n_photos=40, delay=0.5):
         gain = metadata.get("AnalogueGain", "N/A")
 
         # Muestra por consola información de la captura
-        print(f"Foto {frame + 1}/{n_photos} -> {filename}")
+        print(f"Foto {i + 1}/{n_photos} -> {filename}")
         print(f"Exposición: {exposure_time} µs | Ganancia: {gain}")
 
         # Libera el request
         request.release()
+        # Incrementa el número de frame para la siguiente foto
+        frame += 1
         time.sleep(delay)
 
     print("Capturas finalizadas.")
