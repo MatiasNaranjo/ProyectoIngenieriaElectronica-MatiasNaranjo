@@ -25,6 +25,7 @@ class DatasetSplitConfig(BaseModel):
 class DatasetConfig(BaseModel):
     split_cfg: DatasetSplitConfig
     seed: int = 42
+    mode_sessions: str = "all"  # "all", "common"
 
 
 class PathsConfig(BaseModel):

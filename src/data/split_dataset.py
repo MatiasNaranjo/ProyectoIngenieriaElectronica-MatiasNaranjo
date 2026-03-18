@@ -98,11 +98,30 @@ def assign_sessions_to_splits(
     return session_to_split
 
 
-def common_sessions(product_sessions: dict[str, set[str]]) -> set[str]:
-    # Devuelve el conjunto de sesiones que están presentes en todos los productos
+def collect_sessions(
+    product_sessions: dict[str, set[str]],
+    mode: str = "all",
+) -> set[str]:
+    """
+    Recolecta sesiones según el modo:
+    - "common": solo sesiones presentes en todos los productos
+    - "all": todas las sesiones disponibles
+    """
+
     if not product_sessions:
         return set()
-    return set.intersection(*product_sessions.values())
+
+    if mode == "common":
+        return set.intersection(*product_sessions.values())
+
+    elif mode == "all":
+        all_sessions = set()
+        for sessions in product_sessions.values():
+            all_sessions.update(sessions)
+        return all_sessions
+
+    else:
+        raise ValueError("mode debe ser 'common' o 'all'")
 
 
 def copy_split_files(
@@ -191,6 +210,7 @@ def split_by_session(
     yaml_path: str,
     split_ratio: dict[str, float],
     seed: int = 42,
+    mode_sessions: str = "all",
 ) -> None:
     input_path = Path(input_dataset_path)
     output_path = Path(output_dataset_path)
@@ -217,10 +237,10 @@ def split_by_session(
     sessions_by_product = get_sessions_by_product(images)
 
     # Obtener sesiones comunes a todos los productos
-    common = sorted(common_sessions(sessions_by_product))
+    list_sessions = sorted(collect_sessions(sessions_by_product, mode=mode_sessions))
 
     # Asignar sesiones a splits según el split_ratio y el seed para reproducibilidad
-    split_sessions = assign_sessions_to_splits(common, split_ratio, seed=seed)
+    split_sessions = assign_sessions_to_splits(list_sessions, split_ratio, seed=seed)
 
     # Copiar archivos a sus carpetas correspondientes según el split asignado a su sesión
     copy_split_files(input_path, output_path, split_sessions)
