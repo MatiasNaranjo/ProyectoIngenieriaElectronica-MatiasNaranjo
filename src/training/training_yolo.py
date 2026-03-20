@@ -7,26 +7,31 @@ from ultralytics import YOLO
 
 def entrenar_yolo(
     yaml_path=None,
-    version=8,
     imgsz=1440,
     batch=2,
     epochs=300,
     device=0,
     amp=False,
     workers=0,
+    cache=False,
+    close_mosaic=10,
+    cos_lr=False,
 ):
     """
     Entrena un modelo YOLO en un dataset descargado desde Roboflow.
 
     Parámetros:
         base_path (str | Path): ruta base donde se encuentra data/yolo
-        version (int): versión del dataset
         imgsz (int): tamaño de la imagen
         batch (int): tamaño de batch
         epochs (int): número de epochs
         device (int | str): GPU a usar ('0' o 'cpu')
         amp (bool): si usar mixed precision
         workers (int): número de workers para dataloader
+        cache (str | bool): si usar cache para dataloader ('ram' o 'disk')
+        close_mosaic (int): número de epochs para cerrar mosaic augmentation
+        cos_lr (bool): si usar learning rate scheduler con decaimiento cosenoidal
+
 
     Returns:
         model: objeto YOLO entrenado
@@ -56,6 +61,9 @@ def entrenar_yolo(
         device=device,
         verbose=True,
         amp=amp,
+        cache=cache,
+        close_mosaic=close_mosaic,
+        cos_lr=cos_lr,
     )
 
     return model
