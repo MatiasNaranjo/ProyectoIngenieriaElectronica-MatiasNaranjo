@@ -14,6 +14,7 @@ def entrenar_yolo(
     device=0,
     amp=False,
     workers=0,
+    cache=False,
 ):
     """
     Entrena un modelo YOLO en un dataset descargado desde Roboflow.
@@ -56,6 +57,7 @@ def entrenar_yolo(
         device=device,
         verbose=True,
         amp=amp,
+        cache=cache,
     )
 
     return model

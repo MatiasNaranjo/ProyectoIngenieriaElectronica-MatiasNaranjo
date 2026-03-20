@@ -9,6 +9,7 @@ class TrainingConfig(BaseModel):
     device: int | None = None
     amp: bool | None = None
     workers: int | None = None
+    cache: str | None = None
 
 
 class PathConfig(BaseModel):

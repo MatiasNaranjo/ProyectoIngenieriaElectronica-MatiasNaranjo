@@ -15,6 +15,7 @@ def main():
         device=config.training.device,
         amp=config.training.amp,
         workers=config.training.workers,
+        cache=config.training.cache,
     )
 
 
