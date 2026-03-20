@@ -10,6 +10,7 @@ class TrainingConfig(BaseModel):
     amp: bool | None = None
     workers: int | None = None
     cache: str | None = None
+    close_mosaic: int | None = None
 
 
 class PathConfig(BaseModel):

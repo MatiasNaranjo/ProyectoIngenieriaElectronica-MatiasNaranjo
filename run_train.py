@@ -16,6 +16,7 @@ def main():
         amp=config.training.amp,
         workers=config.training.workers,
         cache=config.training.cache,
+        close_mosaic=config.training.close_mosaic,
     )
 
 
