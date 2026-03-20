@@ -7,7 +7,6 @@ from ultralytics import YOLO
 
 def entrenar_yolo(
     yaml_path=None,
-    version=8,
     imgsz=1440,
     batch=2,
     epochs=300,
@@ -23,13 +22,13 @@ def entrenar_yolo(
 
     Parámetros:
         base_path (str | Path): ruta base donde se encuentra data/yolo
-        version (int): versión del dataset
         imgsz (int): tamaño de la imagen
         batch (int): tamaño de batch
         epochs (int): número de epochs
         device (int | str): GPU a usar ('0' o 'cpu')
         amp (bool): si usar mixed precision
         workers (int): número de workers para dataloader
+
 
     Returns:
         model: objeto YOLO entrenado
