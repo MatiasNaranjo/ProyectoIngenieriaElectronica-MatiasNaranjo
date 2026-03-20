@@ -11,6 +11,7 @@ class TrainingConfig(BaseModel):
     workers: int | None = None
     cache: str | None = None
     close_mosaic: int | None = None
+    cos_lr: bool | None = None
 
 
 class PathConfig(BaseModel):

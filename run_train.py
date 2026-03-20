@@ -17,6 +17,7 @@ def main():
         workers=config.training.workers,
         cache=config.training.cache,
         close_mosaic=config.training.close_mosaic,
+        cos_lr=config.training.cos_lr,
     )
 
 

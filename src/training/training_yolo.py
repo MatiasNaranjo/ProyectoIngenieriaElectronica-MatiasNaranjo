@@ -16,6 +16,7 @@ def entrenar_yolo(
     workers=0,
     cache=False,
     close_mosaic=10,
+    cos_lr=False,
 ):
     """
     Entrena un modelo YOLO en un dataset descargado desde Roboflow.
@@ -60,6 +61,7 @@ def entrenar_yolo(
         amp=amp,
         cache=cache,
         close_mosaic=close_mosaic,
+        cos_lr=cos_lr,
     )
 
     return model
