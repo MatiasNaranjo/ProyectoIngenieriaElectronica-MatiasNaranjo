@@ -28,6 +28,9 @@ def entrenar_yolo(
         device (int | str): GPU a usar ('0' o 'cpu')
         amp (bool): si usar mixed precision
         workers (int): número de workers para dataloader
+        cache (str | bool): si usar cache para dataloader ('ram' o 'disk')
+        close_mosaic (int): número de epochs para cerrar mosaic augmentation
+        cos_lr (bool): si usar learning rate scheduler con decaimiento cosenoidal
 
 
     Returns:
