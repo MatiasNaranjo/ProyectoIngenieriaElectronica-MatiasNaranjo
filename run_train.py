@@ -8,7 +8,6 @@ def main():
     # Entrenar modelo YOLO
     entrenar_yolo(
         yaml_path=config.paths.yaml,
-        version=config.training.version,
         imgsz=config.training.imgsz,
         batch=config.training.batch,
         epochs=config.training.epochs,
