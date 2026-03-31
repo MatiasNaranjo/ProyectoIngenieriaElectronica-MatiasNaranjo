@@ -187,7 +187,7 @@ def generate_train_yaml(
     # Mantengo nc y names
     new_yaml = {
         "names": data["names"],
-        "nc": data["nc"],
+        "nc": len(data["names"]),
         "path": str(dataset_root.resolve() / "split"),
         "train": "train/images",
         "val": "val/images",
