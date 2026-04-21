@@ -1,43 +1,9 @@
-from pathlib import Path
-
 import torch
 import torchvision
 from ultralytics import YOLO
 
 
-def entrenar_yolo(
-    yaml_path=None,
-    imgsz=1440,
-    batch=2,
-    epochs=300,
-    device=0,
-    amp=False,
-    workers=0,
-    cache=False,
-    close_mosaic=10,
-    cos_lr=False,
-):
-    """
-    Entrena un modelo YOLO en un dataset descargado desde Roboflow.
-
-    Parámetros:
-        base_path (str | Path): ruta base donde se encuentra data/yolo
-        imgsz (int): tamaño de la imagen
-        batch (int): tamaño de batch
-        epochs (int): número de epochs
-        device (int | str): GPU a usar ('0' o 'cpu')
-        amp (bool): si usar mixed precision
-        workers (int): número de workers para dataloader
-        cache (str | bool): si usar cache para dataloader ('ram' o 'disk')
-        close_mosaic (int): número de epochs para cerrar mosaic augmentation
-        cos_lr (bool): si usar learning rate scheduler con decaimiento cosenoidal
-
-
-    Returns:
-        model: objeto YOLO entrenado
-    """
-    yaml_path = Path(yaml_path)
-
+def entrenar_yolo(abs_path, version):
     # Verifico si PyTorch, CUDA y torchvision están instalados correctamente
     print(torch.__version__)
     print(torch.cuda.is_available())
@@ -47,23 +13,23 @@ def entrenar_yolo(
 
     # Cargo el modelo YOLO preentrenado
     model = YOLO("yolov8n.pt")
-
-    if not yaml_path.exists():
-        raise FileNotFoundError(f"No se encontró el archivo YAML en {yaml_path}")
+    yaml_path = (
+        abs_path
+        + "/data/yolo/Proyecto_final_electronica-"
+        + str(version)
+        + "/data.yaml"
+    )
 
     # Configuro y comienzo el entrenamiento del modelo YOLO
     model.train(
         data=yaml_path,
-        imgsz=imgsz,
-        batch=batch,
-        epochs=epochs,
-        workers=workers,
-        device=device,
+        imgsz=1080,
+        batch=2,
+        epochs=4,
+        workers=0,
+        device=0,
         verbose=True,
-        amp=amp,
-        cache=cache,
-        close_mosaic=close_mosaic,
-        cos_lr=cos_lr,
+        amp=False,  # Desactiva AMP explícitamente
+        # project="resultados_yolo",  # Carpeta donde se guardará el modelo
     )
-
     return model
