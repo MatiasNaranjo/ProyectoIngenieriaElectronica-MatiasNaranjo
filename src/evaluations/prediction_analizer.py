@@ -250,6 +250,18 @@ class PredictionAnalyzer:
         output_dir.mkdir(parents=True, exist_ok=True)
         cv2.imwrite(str(output_dir / img_path.name), frame)
 
+    def _print_summary(self, summary: dict) -> None:
+        print("\n" + "-" * 50)
+        print("RESUMEN DE ERRORES DEL MODELO")
+
+        for split, counts in summary.items():
+            print(f"\n[{split.upper()}]")
+            print(f"  Imágenes con errores : {counts['total_images_with_errors']}")
+            print(f"  Falsos negativos     : {counts[ERROR_FN]}")
+            print(f"  Falsos positivos     : {counts[ERROR_FP]}")
+            print(f"  Clase equivocada     : {counts[ERROR_WRONG_CLASS]}")
+        print("-" * 50)
+
     # ── análisis por imagen ──────────────────────────────────────────────────
 
     def _analyze_image(self, img_path: Path, label_path: Path) -> dict | None:
@@ -349,5 +361,7 @@ class PredictionAnalyzer:
                     false_pos=err["false_pos"],
                     output_dir=output_path / split,
                 )
+
+        self._print_summary(summary)
 
         return dict(summary)
