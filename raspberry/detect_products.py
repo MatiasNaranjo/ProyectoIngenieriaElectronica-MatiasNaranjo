@@ -36,7 +36,7 @@ def main(config, picam2):
     logging.info("Modelo cargado, task: %s\n", model.task)
 
     # Inicializar el procesador de frames
-    processor = FrameProcessor(picam2, model)
+    processor = FrameProcessor(picam2, model, imgsz=config.inference.resolution)
 
     # Parámetros de ejecución del bucle de captura
     frame_count = 0  # Contador de frames procesados
