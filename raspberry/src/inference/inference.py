@@ -69,8 +69,8 @@ class FrameProcessor:
 
         # Verifica que existan resultados previos de detección
         if self.last_results is not None:
-            # Convierte el frame de RGB a BGR (para compatibilidad con OpenCV)
-            frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+            # Copia el frame original para dibujar las anotaciones
+            frame_annoteted = frame.copy()
             boxes = self.last_results
             for box in boxes:
                 x1, y1, x2, y2 = map(int, box["bbox"])
@@ -78,9 +78,9 @@ class FrameProcessor:
                 conf = box["confidence"]  # Nivel de confianza
 
                 # Dibuja el rectángulo
-                cv2.rectangle(frame_bgr, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                cv2.rectangle(frame_annoteted, (x1, y1), (x2, y2), (0, 255, 0), 2)
                 cv2.putText(
-                    frame_bgr,
+                    frame_annoteted,
                     f"{cls_name} {conf:.2f}",
                     (x1, y1 - 12),
                     cv2.FONT_HERSHEY_SIMPLEX,
@@ -97,8 +97,8 @@ class FrameProcessor:
                     path, f"{timestamp}_frame_{frame_count:04d}.jpg"
                 )
 
-                cv2.imwrite(filename, frame_bgr)
-            return frame_bgr
+                cv2.imwrite(filename, frame_annoteted)
+            return frame_annoteted
 
         else:
             print("No hay resultados para dibujar.")
