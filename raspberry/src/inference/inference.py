@@ -66,6 +66,11 @@ class FrameProcessor:
         Returns:
             np.ndarray: Frame anotado en formato BGR.
         """
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        font_scale = 0.9
+        font_thickness = 2  # Grosor para efecto "negrita"
+        color_text = (255, 255, 255)  # Blanco para que contraste con el fondo verde
+        color_fondo = (0, 255, 0)  # Verde para el fondo del texto (bounding box)
 
         # Verifica que existan resultados previos de detección
         if self.last_results is not None:
@@ -76,17 +81,40 @@ class FrameProcessor:
                 x1, y1, x2, y2 = map(int, box["bbox"])
                 cls_name = box["class_name"]  # Nombre de la clase detectada
                 conf = box["confidence"]  # Nivel de confianza
+                label = f"{cls_name} {conf:.2f}"
 
-                # Dibuja el rectángulo
+                # Dibuja el bounding box
                 cv2.rectangle(frame_annoteted, (x1, y1), (x2, y2), (0, 255, 0), 2)
+
+                if y1 > 35:
+                    rect_top, rect_bottom = y1 - 30, y1
+                    text_y = y1 - 7
+
+                else:
+                    rect_top, rect_bottom = y1, y1 + 30
+                    text_y = y1 + 22
+
+                # Para font_scale 0.9, el ancho es ~15px por caracter
+                w = len(label) * 16 + 5
+
+                # Dibujar el fondo del texto (rectángulo sólido)
+                cv2.rectangle(
+                    frame_annoteted,
+                    (x1, rect_top),
+                    (x1 + w, rect_bottom),
+                    color_fondo,
+                    -1,
+                )
+
                 cv2.putText(
                     frame_annoteted,
-                    f"{cls_name} {conf:.2f}",
-                    (x1, y1 - 12),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    1.5,
-                    (0, 0, 0),
-                    2,
+                    label,
+                    (x1, text_y),
+                    font,
+                    font_scale,
+                    color_text,
+                    font_thickness,
+                    cv2.LINE_AA,
                 )
 
             # Si se especificó una ruta, guarda el frame anotado
