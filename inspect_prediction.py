@@ -1,4 +1,4 @@
-from evaluations.prediction_analyzer import PredictionAnalyzer
+from src.evaluations.prediction_analyzer import PredictionAnalyzer
 from src.utils.config_loader import ConfigLoader
 
 
