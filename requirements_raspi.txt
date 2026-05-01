@@ -1,0 +1,21 @@
+# Modelo
+ultralytics
+torch
+torchvision
+
+# Procesamiento
+opencv-python-headless
+numpy==2.2.4
+
+# Configuración
+pydantic
+python-dotenv
+PyYAML
+
+# Utilidades
+tqdm
+
+# Nota: picamera2 debe instalarse a nivel sistema con apt:
+#   sudo apt install -y python3-picamera2
+# Crear el venv con --system-site-packages para que sea accesible:
+#   python -m venv venv --system-site-packages
