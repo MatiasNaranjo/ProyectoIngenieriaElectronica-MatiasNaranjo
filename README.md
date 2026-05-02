@@ -191,7 +191,7 @@ python detect_products.py
 Herramientas y usos:
 - YOLOv8 (Ultralytics): Detección de objetos
 - Roboflow: Gestión y etiquetado del dataset
-- Raspberry Pi 5 + PiCamera2: Captura e inferencia
+- Raspberry Pi 5 + PiCamera3 Wide: Captura e inferencia
 - PyTorch: Entrenamiento
 - OpenCV: Procesamiento de imágenes
 - Pydantic: Validación de configuración
