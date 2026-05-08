@@ -250,3 +250,176 @@ def split_by_session(
         yaml_original=yaml_path,
         dataset_root=output_dataset_path,
     )
+
+
+def _select_systematic(files: list[Path], n: int) -> list[Path]:
+    """
+    Selecciona n archivos de forma sistemática (uniforme) sobre una lista ordenada.
+    Garantiza cobertura uniforme del rango (útil para fotos de plataforma giratoria).
+
+    Ejemplo: 24 fotos, n=6 → step=4 → índices 0, 4, 8, 12, 16, 20
+    """
+    total = len(files)
+    if n >= total:
+        return files
+
+    step = total / n
+    indices = [int(i * step) for i in range(n)]
+    return [files[i] for i in indices]
+
+
+def _get_iso_files_by_product_session(
+    train_images_dir: Path,
+) -> dict[str, dict[str, list[Path]]]:
+    """
+    Agrupa las imágenes ISO de train por producto y por sesión, ordenadas por nombre.
+
+    Retorna:
+        { producto: { sesion: [path1, path2, ...] } }
+
+    Las imágenes 'multi' se excluyen.
+    """
+    grouped: dict[str, dict[str, list[Path]]] = defaultdict(lambda: defaultdict(list))
+
+    for img_path in sorted(train_images_dir.glob("*.jpg")):
+        product, session = parse_filename(img_path.name)
+        if product == "multi":
+            continue
+        grouped[product][session].append(img_path)
+
+    return {p: dict(sessions) for p, sessions in grouped.items()}
+
+
+def _select_iso_files(
+    iso_by_product_session: dict[str, dict[str, list[Path]]],
+    ratio: float,
+) -> list[Path]:
+    """
+    Para cada producto y sesión, selecciona sistemáticamente `ratio` de las fotos.
+    ratio=0.25 → 25% de fotos por sesión por producto.
+
+    Mínimo 1 foto por sesión por producto.
+    """
+    selected = []
+
+    for product, sessions in iso_by_product_session.items():
+        for session, files in sessions.items():
+            n = max(1, round(len(files) * ratio))
+            selected.extend(_select_systematic(files, n))
+
+    return selected
+
+
+def _copy_experiment_split(
+    split_path: Path,
+    exp_path: Path,
+    train_files: list[Path],
+) -> None:
+    """
+    Copia los archivos de un experimento a exp_path/split/.
+    - train: solo los archivos en train_files (imágenes + labels correspondientes)
+    - val y test: copia completa del split original
+    """
+    src_labels = split_path / "train" / "labels"
+
+    # --- train ---
+    (exp_path / "split" / "train" / "images").mkdir(parents=True, exist_ok=True)
+    (exp_path / "split" / "train" / "labels").mkdir(parents=True, exist_ok=True)
+
+    for img_path in train_files:
+        label_path = src_labels / f"{img_path.stem}.txt"
+        shutil.copy2(img_path, exp_path / "split" / "train" / "images" / img_path.name)
+        if label_path.exists():
+            shutil.copy2(
+                label_path, exp_path / "split" / "train" / "labels" / label_path.name
+            )
+
+    # --- val y test (copia completa) ---
+    for split in ["val", "test"]:
+        src_split = split_path / split
+        if not src_split.exists():
+            continue
+        for subfolder in ["images", "labels"]:
+            src_dir = src_split / subfolder
+            dst_dir = exp_path / "split" / split / subfolder
+            dst_dir.mkdir(parents=True, exist_ok=True)
+            for f in src_dir.iterdir():
+                if f.is_file():
+                    shutil.copy2(f, dst_dir / f.name)
+
+
+def split_experiment(
+    split_path: str | Path,
+    output_path: str | Path,
+    yaml_path: str | Path,
+    train_ratios: list[float],
+    seed: int = 42,
+) -> None:
+    """
+    Genera subsets de entrenamiento para análisis de sensibilidad al número de fotos.
+
+    Para cada ratio en train_ratios:
+    - Selecciona sistemáticamente ratio% de las fotos ISO de train (cobertura uniforme de ángulos)
+    - Mantiene todas las fotos multi en train
+    - Copia val y test intactos
+    - Genera data.yaml listo para entrenar
+
+    Estructura de salida:
+        output_path/
+            exp_25/split/train|val|test + data.yaml
+            exp_50/split/train|val|test + data.yaml
+            exp_100/split/train|val|test + data.yaml
+
+    Args:
+        split_path: ruta al split original (contiene train/val/test)
+        output_path: ruta donde se crearán las carpetas de experimentos
+        yaml_path: ruta al data.yaml original (para nc y names)
+        train_ratios: lista de ratios, ej: [0.25, 0.50, 1.0]
+        seed: no usado en systematic sampling, reservado para compatibilidad futura
+    """
+    split_path = Path(split_path)
+    output_path = Path(output_path)
+    yaml_path = Path(yaml_path)
+
+    train_images_dir = split_path / "train" / "images"
+    if not train_images_dir.exists():
+        raise FileNotFoundError(f"No se encontró train/images en {split_path}")
+
+    # Agrupar ISO por producto y sesión
+    iso_by_product_session = _get_iso_files_by_product_session(train_images_dir)
+
+    # Obtener todas las fotos multi de train
+    multi_files = sorted(train_images_dir.glob("multi_*.jpg"))
+
+    print(
+        f"\nProductos ISO encontrados en train: {list(iso_by_product_session.keys())}"
+    )
+    print(f"Fotos multi en train: {len(multi_files)}")
+
+    # Limpiar experimento anterior si existe
+    if output_path.exists():
+        shutil.rmtree(output_path)
+
+    for ratio in train_ratios:
+        pct = int(ratio * 100)
+        exp_path = output_path / f"exp_{pct}"
+
+        # Seleccionar fotos ISO según ratio
+        iso_selected = _select_iso_files(iso_by_product_session, ratio)
+        train_files = iso_selected + multi_files
+
+        print(
+            f"\n[exp_{pct}] ISO seleccionadas: {len(iso_selected)} | Multi: {len(multi_files)} | Total train: {len(train_files)}"
+        )
+
+        # Copiar archivos
+        _copy_experiment_split(split_path, exp_path, train_files)
+
+        # Generar data.yaml
+        generate_train_yaml(
+            yaml_original=yaml_path,
+            dataset_root=exp_path,
+            output_yaml=exp_path / "data.yaml",
+        )
+
+    print(f"\nExperimentos generados en: {output_path}")
