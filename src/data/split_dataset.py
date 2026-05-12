@@ -298,8 +298,11 @@ def _select_iso_files(
     Para cada producto y sesión, selecciona sistemáticamente `ratio` de las fotos.
     ratio=0.25 → 25% de fotos por sesión por producto.
 
-    Mínimo 1 foto por sesión por producto.
     """
+    if ratio == 0.0:
+        # Si el ratio es 0, no selecciono ninguna foto ISO (solo las multi que se agregan aparte)
+        return []
+
     selected = []
 
     for product, sessions in iso_by_product_session.items():
