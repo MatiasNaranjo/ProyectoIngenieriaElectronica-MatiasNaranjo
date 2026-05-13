@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 
 import pandas as pd
@@ -188,8 +189,8 @@ def entrenar_experimentos(
     """
 
     experiments_dir = Path(experiments_dir)
-    output_dir = _get_unique_output_dir(Path(output_dir))
-    print(f"Output dir: {output_dir}")
+    output_dir = Path(output_dir)
+
     output_dir.mkdir(parents=True, exist_ok=True)
 
     if train_ratios is not None:
@@ -220,6 +221,18 @@ def entrenar_experimentos(
         if not data_yaml.exists():
             print(f"[WARN] No se encontró data.yaml en {exp_dir}, saltando...")
             continue
+
+        exp_output_dir = output_dir / exp_name
+
+        # Run completo: skip
+        if (exp_output_dir / "results.png").exists():
+            print(f"[SKIP] {exp_name} ya entrenado, saltando...")
+            continue
+
+        # Run incompleto: borrar y reentrenar
+        if exp_output_dir.exists():
+            print(f"[WARN] {exp_name} incompleto, borrando y reentrenando...")
+            shutil.rmtree(exp_output_dir)
 
         print(f"\n{'=' * 50}")
         print(f"Entrenando: {exp_name}")
