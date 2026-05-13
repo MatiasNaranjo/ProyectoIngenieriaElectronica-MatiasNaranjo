@@ -197,7 +197,8 @@ def entrenar_experimentos(
         exp_dirs = [
             d
             for d in experiments_dir.iterdir()
-            if d.is_dir() and float(d.name.split("_")[1]) / 100 in train_ratios
+            if d.is_dir()
+            and int(d.name.split("_")[1]) in [int(r * 100) for r in train_ratios]
         ]
 
     else:
