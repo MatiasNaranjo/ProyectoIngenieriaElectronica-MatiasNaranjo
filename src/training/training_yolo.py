@@ -124,28 +124,6 @@ def _extract_metrics(results_csv: Path) -> dict:
     }
 
 
-def _count_train_images(data_yaml: Path) -> int:
-    """Cuenta las imágenes de train en el data.yaml de un experimento."""
-    data = yaml.safe_load(data_yaml.read_text(encoding="utf-8"))
-    train_path = Path(data["path"]) / data["train"]
-    if not train_path.exists():
-        return -1
-    return len(list(train_path.glob("*.jpg")) + list(train_path.glob("*.png")))
-
-
-def _get_unique_output_dir(output_dir: Path) -> Path:
-    """Si output_dir ya existe, agrega sufijo numérico: experiments, experiments2, experiments3..."""
-    if not output_dir.exists():
-        return output_dir
-
-    counter = 2
-    while True:
-        candidate = output_dir.parent / f"{output_dir.name}{counter}"
-        if not candidate.exists():
-            return candidate
-        counter += 1
-
-
 def _get_exp_number(d):
     # Extrae el número del experimento del nombre del directorio (ej: exp_25 → 25)
     return int(d.name.split("_")[1])
