@@ -212,8 +212,6 @@ def entrenar_experimentos(
 
     print(f"\nExperimentos encontrados: {[d.name for d in exp_dirs]}")
 
-    summary = {}
-
     for exp_dir in exp_dirs:
         exp_name = exp_dir.name  # ej: exp_25
         data_yaml = exp_dir / "data.yaml"
@@ -225,9 +223,6 @@ def entrenar_experimentos(
         print(f"\n{'=' * 50}")
         print(f"Entrenando: {exp_name}")
         print(f"{'=' * 50}")
-
-        train_images = _count_train_images(data_yaml)
-        ratio = int(exp_name.split("_")[1]) / 100
 
         entrenar_yolo(
             yaml_path=data_yaml,
