@@ -145,8 +145,7 @@ def entrenar_experimentos(
     train_ratios: list[float] | None = None,  # None → corre todos
 ) -> None:
     """
-    Entrena un modelo YOLO por cada experimento en experiments_dir en serie,
-    y genera un experiment_summary.yaml con métricas de best y last epoch.
+    Entrena un modelo YOLO por cada experimento en experiments_dir en serie.
 
     Estructura esperada de experiments_dir:
         experiments_dir/
