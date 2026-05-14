@@ -71,7 +71,7 @@ El dataset se captura con la Raspberry Pi, se etiqueta en Roboflow, se descarga 
 
 ### PC (entrenamiento y deploy)
 
-Requiere Python 3.10+ y CUDA para entrenamiento con GPU.
+Requiere Python 3.12+ y CUDA para entrenamiento con GPU.
 
 ```bash
 git clone https://github.com/MatiasNaranjo/ProyectoIngenieriaElectronica-MatiasNaranjo.git
@@ -130,14 +130,16 @@ python capture_dataset.py --mode multi
 
 ### 2. Preparar el dataset
 
-Descarga desde Roboflow, mergea los splits y los reorganiza por sesión:
+Descarga desde Roboflow, mergea los splits y los reorganiza por sesión.
+Cuenta con la opción de generar subsets de entrenamiento con distintas cantidades de fotos ISO para análisis de sensibilidad.
 
 ```bash
 python prepare_dataset.py
 ```
 
 ### 3. Entrenar el modelo
-
+Además de entrenar el modelo final para la Raspberry Pi, permite ejecutar un ensayo donde se entrenan varios modelos con distintas cantidades de
+fotos ISO y se comparan sus métricas.
 ```bash
 python run_train.py
 ```
@@ -171,7 +173,7 @@ python detect_products.py
 
 - Dos tipos de imágenes: fotos aisladas por producto (ISO) y fotos con múltiples productos (multi)
 - Sesiones con distintas condiciones de iluminación: luz blanca, luz cálida, luz de techo
-- **15 productos** etiquetados
+- **20 productos** etiquetados
 - Etiquetado en **Roboflow**, split train/val/test procesado en **PC**
 - Split por sesión para evitar data leakage entre train/val/test
 
