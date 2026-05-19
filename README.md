@@ -1,19 +1,9 @@
-# Automatización del cobro de productos de un comercio minorista mediante cámara y YOLO
+# Detección de productos en tiempo real con YOLOv8 sobre Raspberry Pi 5
+![Demostración de Inferencia](docs/demo.jpg)
 
-## Introducción
-La Visión por Computadora (Computer Vision, CV) es una disciplina científica que permite a las máquinas interpretar y comprender imágenes y videos del mundo real. Tiene como objetivo replicar la capacidad de visión humana permitiendo a las computadoras extraer información útil de datos visuales para tomar decisiones o realizar acciones automatizadas.
-
-Computer Vision tiene aplicaciones en diversos rubros, como:
-- Comercio minorista: Análisis de comportamiento del cliente, detección de productos en supermercados.
-- Salud: Diagnóstico de enfermedades mediante imágenes médicas (radiografías, tomografías, resonancias magnéticas).
-- Control de calidad: es posible encontrar rápidamente defectos o problemas en los productos antes de que se envíen a los clientes.
-- Automoción: Vehículos autónomos que detectan señales de tránsito, peatones y obstáculos.
-- Seguridad: Reconocimiento facial y detección de comportamientos sospechosos en videovigilancia.
-- Agricultura: Monitoreo de cultivos y detección de plagas mediante imágenes satelitales o drones.
-- Entretenimiento: Realidad aumentada y mejora de imágenes en videojuegos y cine.
-
-
-En este proyecto, se abordará la aplicación de sistema de detección de productos en tiempo real sobre una cámara fija, orientado a automatizar el cobro en un comercio minorista. Utiliza YOLOv8 corriendo en una Raspberry Pi 5 y con una Camera Module 3 Wide Raspberry Pi para detectar distintos productos. Mediante el reconocimiento de productos a través de imágenes, se busca optimizar la experiencia del usuario, reducir tiempos de espera y minimizar errores en el proceso de facturación.
+## Resumen
+Sistema de detección de objetos entrenado sobre un dataset propio de 20 productos y 1016 imágenes, desplegado en una Raspberry Pi 5 con inferencia en tiempo real a ~62ms por frame.
+El dataset fue capturado en condiciones controladas con dos modalidades: fotos aisladas por producto (ISO) en plataforma giratoria con iluminación variable, y fotos con múltiples productos simultáneos (multi). El split train/val/test se realiza por sesión de captura para evitar data leakage. El modelo YOLOv8n alcanza mAP50-95 de 0.956 sobre el conjunto de val.
 
 ---
 
