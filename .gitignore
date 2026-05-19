@@ -1,14 +1,35 @@
-*.jpg
-.venv/
-*.pkl
-*.keras
-*.png
-/data/
-/src/data/logs/
-runs/
-*.pt
-__pycache__/
-# Entorno
+# =========================
+# 1. Entornos y Configuración
+# =========================
 .env
 config_deploy*
+.venv/
 env/
+
+# =========================
+# 2. Python y Caché
+# =========================
+__pycache__/
+*.pyc
+
+# =========================
+# 3. Datos e Imágenes
+# =========================
+/data/
+*.jpg
+*.png
+# Excepción: Permitir imágenes en demo/ para el README
+!docs/*.jpg
+!docs/*.png
+
+# =========================
+# 4. Modelos de Entrenamiento (YOLO/Weights)
+# =========================
+*.pt
+*.pkl
+runs/
+
+# =========================
+# 5. Logs y Salidas
+# =========================
+/src/data/logs/
