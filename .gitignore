@@ -18,6 +18,7 @@ __pycache__/
 /data/
 *.jpg
 *.png
+*.csv
 # Excepción: Permitir imágenes en demo/ para el README
 !docs/*.jpg
 !docs/*.png

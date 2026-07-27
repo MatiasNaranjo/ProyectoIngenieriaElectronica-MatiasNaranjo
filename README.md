@@ -2,7 +2,7 @@
 ![Demostración de Inferencia](docs/demo.jpg)
 
 ## Resumen
-Sistema de detección de objetos entrenado sobre un dataset propio de 20 productos y 1016 imágenes, desplegado en una Raspberry Pi 5 con inferencia en tiempo real a ~62ms por frame.
+Sistema de detección de objetos entrenado sobre un dataset propio de 20 productos con 1016 imágenes de entrenamiento y 498 de validación, desplegado en una Raspberry Pi 5 con una latencia de inferencia de 536,71 ± 4,62 ms por frame.
 El dataset fue capturado en condiciones controladas con dos modalidades: fotos aisladas por producto (ISO) en plataforma giratoria con iluminación variable, y fotos con múltiples productos simultáneos (multi). El split train/val/test se realiza por sesión de captura para evitar data leakage. El modelo YOLOv8n alcanza mAP50-95 de 0.956 sobre el conjunto de val.
 
 ---
@@ -173,7 +173,7 @@ python detect_products.py
 
 - Arquitectura: **YOLOv8n**
 - Hardware de inferencia: **Raspberry Pi 5**
-- Velocidad de inferencia: **~62ms por frame**
+- Velocidad de inferencia: **536,71 ± 4,62 ms por frame**
 - Umbral de IoU para evaluación: **0.3** (la identidad del producto importa más que la localización exacta)
 
 ---
